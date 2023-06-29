@@ -5,22 +5,21 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Repository
 public class UserDaoInMemory implements UserDao {
     private static long uid = 0;
     private final Map<Long, User> users = new HashMap<>();
+    private final Set<String> emails = new HashSet<>();
 
     @Override
     public User addUser(User user) {
         user.setId(++uid);
 
         users.put(uid, user);
+        emails.add(user.getEmail());
 
         log.debug("User: {} added", user);
 
@@ -39,8 +38,7 @@ public class UserDaoInMemory implements UserDao {
 
     @Override
     public boolean isEmailExists(String email) {
-        return users.values().stream()
-                .anyMatch(u -> u.getEmail().equals(email));
+        return emails.contains(email);
     }
 
     @Override
@@ -53,7 +51,12 @@ public class UserDaoInMemory implements UserDao {
             userInMemory.setName(user.getName());
         }
         if (user.getEmail() != null) {
-            userInMemory.setEmail(user.getEmail());
+            emails.remove(userInMemory.getEmail());
+
+            String userEmail = user.getEmail();
+
+            userInMemory.setEmail(userEmail);
+            emails.add(userEmail);
         }
 
         log.debug("User after update: {}", userInMemory);
@@ -63,7 +66,11 @@ public class UserDaoInMemory implements UserDao {
 
     @Override
     public void deleteUser(long userId) {
-        users.remove(userId);
+        User removedUser = users.remove(userId);
+
+        if (removedUser != null) {
+            emails.remove(removedUser.getEmail());
+        }
 
         log.debug("User with id = {} deleted", userId);
     }

@@ -21,7 +21,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(long userId, ItemDto itemDto) {
-        checkIsUserExists(userId);
+        throwExceptionIfUserNotExists(userId);
 
         Item item = Mapper.toItem(itemDto);
         item.setOwnerId(userId);
@@ -31,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItemsByOwnerId(long userId) {
-        checkIsUserExists(userId);
+        throwExceptionIfUserNotExists(userId);
 
         return itemStorage.getAllItemsByOwnerId(userId).stream()
                 .map(Mapper::itemToDto)
@@ -40,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findAllAvailableItems(long userId, String search) {
-        checkIsUserExists(userId);
+        throwExceptionIfUserNotExists(userId);
 
         if (search.isBlank()) {
             return Collections.emptyList();
@@ -53,14 +53,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long userId, long itemId) {
-        checkIsUserExists(userId);
+        throwExceptionIfUserNotExists(userId);
 
         return Mapper.itemToDto(itemStorage.getItemById(itemId));
     }
 
     @Override
     public ItemDto updateItem(long userId, ItemDto itemDto) {
-        checkIsUserExists(userId);
+        throwExceptionIfUserNotExists(userId);
 
         Item itemOnStorage = itemStorage.getItemById(itemDto.getId());
         checkIsUserItemOwner(userId, itemOnStorage);
@@ -75,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(long userId, long itemId) {
-        checkIsUserExists(userId);
+        throwExceptionIfUserNotExists(userId);
 
         Item itemOnStorage = itemStorage.getItemById(itemId);
         checkIsUserItemOwner(userId, itemOnStorage);
@@ -83,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
         itemStorage.deleteItem(itemId);
     }
 
-    private void checkIsUserExists(long id) {
+    private void throwExceptionIfUserNotExists(long id) {
         userStorage.getUserById(id);
     }
 
