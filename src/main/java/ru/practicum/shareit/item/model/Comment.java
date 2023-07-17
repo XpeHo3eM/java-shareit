@@ -1,29 +1,28 @@
-package ru.practicum.shareit.booking.model;
+package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "booking")
+@Table(name = "comments")
 @Data
 @Builder
-@EqualsAndHashCode(exclude = {"dateStart", "dateEnd", "item", "booker", "status"})
+@EqualsAndHashCode(exclude = {"text", "item", "author"})
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "date_start", nullable = false)
-    private LocalDateTime dateStart;
+    @Column(nullable = false)
+    private String text;
 
-    @Column(name = "date_end", nullable = false)
-    private LocalDateTime dateEnd;
+    @Column(name = "creation_date", nullable = false)
+    private LocalDateTime creationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -33,8 +32,6 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     @ToString.Exclude
-    private User booker;
-
-    @Enumerated(EnumType.STRING)
-    private StatusType status;
+    private User author;
 }
+

@@ -1,12 +1,16 @@
 package ru.practicum.shareit.user.dal;
 
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.EmailAlreadyExistsException;
-import ru.practicum.shareit.user.dao.UserDao;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.AlreadyExistsException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.user.dao.UserRepository;
+import ru.practicum.shareit.user.dto.CreatingUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.util.Mapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,52 +18,62 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserDao storage;
+    private final UserRepository repository;
 
     @Override
-    public UserDto addUser(UserDto userDto) {
-        if (storage.isEmailExists(userDto.getEmail())) {
-            throw new EmailAlreadyExistsException(String.format("Пользователь с email = %s уже существует", userDto.getEmail()));
-        }
+    @Transactional
+    public UserDto addUser(CreatingUserDto creatingUserDto) {
+        User user = UserMapper.toUser(creatingUserDto);
 
-        User user = Mapper.toUser(userDto);
-
-        return Mapper.userToDto(storage.addUser(user));
+        return save(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto getUserById(long id) {
-        return Mapper.userToDto(storage.getUserById(id));
+        return UserMapper.toDto(getUserOrThrowException(id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
-        return storage.getAllUsers().stream()
-                .map(Mapper::userToDto)
+        return repository.findAll().stream()
+                .map(UserMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto) {
-        storage.getUserById(userDto.getId());
+    @Transactional
+    public UserDto updateUser(long userId, CreatingUserDto creatingUserDto) {
+        User userInRepository = getUserOrThrowException(userId);
+        User user = UserMapper.toUser(creatingUserDto);
 
-        if (!isSameEmail(userDto) && storage.isEmailExists(userDto.getEmail())) {
-            throw new EmailAlreadyExistsException(String.format("Пользователь с email = %s уже существует", userDto.getEmail()));
+        if (user.getEmail() != null) {
+            userInRepository.setEmail(user.getEmail());
+        }
+        if (user.getName() != null) {
+            userInRepository.setName(user.getName());
         }
 
-        User user = Mapper.toUser(userDto);
-
-        return Mapper.userToDto(storage.updateUser(user));
+        return save(userInRepository);
     }
 
     @Override
+    @Transactional
     public void deleteUser(long id) {
-        storage.deleteUser(id);
+        repository.deleteById(id);
     }
 
-    private boolean isSameEmail(UserDto userDto) {
-        String userEmailOnDb = storage.getUserById(userDto.getId()).getEmail();
+    private User getUserOrThrowException(long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователь с ID = %d не найден", id)));
+    }
 
-        return userEmailOnDb.equals(userDto.getEmail());
+    private UserDto save(User user) {
+        try {
+            return UserMapper.toDto(repository.saveAndFlush(user));
+        } catch (DataIntegrityViolationException e) {
+            throw new AlreadyExistsException(String.format("Пользователь с email: %s уже существует", user.getEmail()));
+        }
     }
 }
