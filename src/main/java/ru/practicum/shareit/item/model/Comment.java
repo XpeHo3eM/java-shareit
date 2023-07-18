@@ -25,12 +25,10 @@ public class Comment {
     private LocalDateTime creationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
     @ToString.Exclude
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
     @ToString.Exclude
     private User author;
 }

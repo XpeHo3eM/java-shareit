@@ -29,7 +29,6 @@ public class Item {
     private Boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
     @ToString.Exclude
     private User owner;
 
