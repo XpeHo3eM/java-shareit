@@ -21,7 +21,7 @@ public class Comment {
     @Column(name = "text", nullable = false)
     private String text;
 
-    @Column(name = "creation_date", nullable = false)
+    @Column(name = "created", nullable = false)
     private LocalDateTime creationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
