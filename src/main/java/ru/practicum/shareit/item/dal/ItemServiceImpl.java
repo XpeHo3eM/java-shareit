@@ -152,7 +152,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void throwExceptionIfUserIsNotItemOwner(User user, Item itemOnStorage) {
-        if (itemOnStorage.getOwner().getId() != user.getId()) {
+        if (!itemOnStorage.getOwner().equals(user)) {
             throw new AccessDeniedException(String.format("Пользователь %s не является владельцем вещи %s",
                     user,
                     itemOnStorage));

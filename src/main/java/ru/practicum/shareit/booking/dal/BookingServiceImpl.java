@@ -40,7 +40,7 @@ public class BookingServiceImpl implements BookingService {
 
         Item itemInRepository = getItemOrThrowException(creatingBookingDto.getItemId());
 
-        if (itemInRepository.getOwner().getId() == userInRepository.getId()) {
+        if (itemInRepository.getOwner().equals(userInRepository)) {
             throw new EntityNotFoundException(String.format("Пользователь %s является владельцем вещи %s и не может ее забронировать",
                     userInRepository,
                     itemInRepository));
