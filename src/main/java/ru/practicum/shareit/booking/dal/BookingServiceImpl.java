@@ -46,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
                     itemInRepository));
         }
 
-        if (!itemInRepository.isAvailable()) {
+        if (!itemInRepository.getAvailable()) {
             throw new NotAvailableBookingException(String.format("Вещь %s не доступна для бронирования", itemInRepository));
         }
 
