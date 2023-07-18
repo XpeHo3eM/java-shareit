@@ -7,9 +7,9 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "users", schema = "public")
-@Data
+@Getter
+@Setter
 @Builder
-@EqualsAndHashCode(exclude = {"name", "email"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -22,4 +22,19 @@ public class User {
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+
+        User user = (User) o;
+
+        return id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

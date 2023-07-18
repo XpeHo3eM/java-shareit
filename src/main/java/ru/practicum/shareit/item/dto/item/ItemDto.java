@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class ItemDto {
-    private long id;
+    private Long id;
     private String name;
     private String description;
     private Boolean available;

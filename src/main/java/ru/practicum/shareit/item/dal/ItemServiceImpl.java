@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -43,7 +44,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ItemDto> getAllItemsByOwnerId(long userId) {
         getUserOrThrowException(userId);
 
@@ -61,7 +61,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ItemDto> search(long userId, String text) {
         getUserOrThrowException(userId);
 
@@ -109,7 +108,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public void deleteItem(long userId, long itemId) {
         User userInRepository = getUserOrThrowException(userId);
         Item itemInRepository = getItemOrThrowException(itemId);

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
@@ -79,7 +80,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BookingDto getBooking(long userId, long bookingId) {
         User userInRepository = getUserOrThrowException(userId);
         Booking bookingInRepository = getBookingOrThrowException(bookingId);
@@ -92,7 +92,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BookingDto> getUserBookings(long userId, String state) {
         User user = getUserOrThrowException(userId);
 
@@ -131,7 +130,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BookingDto> getOwnerBookings(long userId, String state) {
         User user = getUserOrThrowException(userId);
 

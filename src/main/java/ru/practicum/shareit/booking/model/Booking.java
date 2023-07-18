@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "booking", schema = "public")
-@Data
+@Getter
+@Setter
 @Builder
-@EqualsAndHashCode(exclude = {"dateStart", "dateEnd", "item", "booker", "status"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
@@ -37,4 +37,19 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     private StatusType status;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Booking)) return false;
+
+        Booking booking = (Booking) o;
+
+        return id.equals(booking.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

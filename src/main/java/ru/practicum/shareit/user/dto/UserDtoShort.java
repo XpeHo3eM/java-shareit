@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @Builder
 public class UserDtoShort {
-    private long id;
+    private Long id;
 }

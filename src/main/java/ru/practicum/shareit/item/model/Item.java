@@ -9,9 +9,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "items", schema = "public")
-@Data
+@Getter
+@Setter
 @Builder
-@EqualsAndHashCode(exclude = {"name", "description", "owner", "comments", "bookings"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
@@ -41,4 +41,19 @@ public class Item {
     @JoinColumn(name = "item_id")
     @ToString.Exclude
     private Set<Booking> bookings;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Item)) return false;
+
+        Item item = (Item) o;
+
+        return id.equals(item.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

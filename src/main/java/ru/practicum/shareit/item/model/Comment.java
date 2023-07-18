@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments", schema = "public")
-@Data
+@Getter
+@Setter
 @Builder
-@EqualsAndHashCode(exclude = {"text", "item", "author"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
@@ -31,5 +31,20 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User author;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Comment)) return false;
+
+        Comment comment = (Comment) o;
+
+        return id.equals(comment.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }
 
