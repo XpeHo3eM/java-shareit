@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "comments", schema = "public")
 @Data
 @Builder
 @EqualsAndHashCode(exclude = {"text", "item", "author"})

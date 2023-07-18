@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "items")
+@Table(name = "items", schema = "public")
 @Data
 @Builder
 @EqualsAndHashCode(exclude = {"name", "description", "owner", "comments", "bookings"})

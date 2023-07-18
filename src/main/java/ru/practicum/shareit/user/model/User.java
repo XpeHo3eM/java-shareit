@@ -6,7 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "public")
 @Data
 @Builder
 @EqualsAndHashCode(exclude = {"name", "email"})

@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "booking")
+@Table(name = "booking", schema = "public")
 @Data
 @Builder
 @EqualsAndHashCode(exclude = {"dateStart", "dateEnd", "item", "booker", "status"})
