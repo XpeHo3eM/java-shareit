@@ -1,18 +1,21 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusType;
 import ru.practicum.shareit.item.dto.comment.CommentDto;
-import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.CreatingItemDto;
+import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.ItemDtoShort;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -41,20 +44,22 @@ public class ItemMapper {
         ItemDto itemDto = toDto(item);
         Set<Booking> bookings = item.getBookings();
 
-        Optional<Booking> lastBooking = bookings.stream()
+        Booking lastBooking = bookings.stream()
                 .sorted(Comparator.comparing(Booking::getDateStart).reversed())
                 .filter(b -> b.getDateStart().isBefore(now) &&
                         b.getStatus().equals(StatusType.APPROVED))
-                .findFirst();
+                .findFirst()
+                .orElse(null);
 
-        Optional<Booking> nextBooking = bookings.stream()
+        Booking nextBooking = bookings.stream()
                 .sorted(Comparator.comparing(Booking::getDateStart))
                 .filter(b -> b.getDateStart().isAfter(now) &&
                         b.getStatus().equals(StatusType.APPROVED))
-                .findFirst();
+                .findFirst()
+                .orElse(null);
 
-        lastBooking.ifPresent(booking -> itemDto.setLastBooking(BookingMapper.toBookingDtoShort(booking)));
-        nextBooking.ifPresent(booking -> itemDto.setNextBooking(BookingMapper.toBookingDtoShort(booking)));
+        itemDto.setLastBooking(BookingMapper.toBookingDtoShort(lastBooking));
+        itemDto.setNextBooking(BookingMapper.toBookingDtoShort(nextBooking));
 
         return itemDto;
     }

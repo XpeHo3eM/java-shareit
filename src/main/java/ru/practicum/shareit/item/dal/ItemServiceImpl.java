@@ -74,7 +74,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public ItemDto getItemById(long userId, long itemId) {
         getUserOrThrowException(userId);
         Item itemInRepository = getItemOrThrowException(itemId);
