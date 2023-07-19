@@ -58,8 +58,12 @@ public class ItemMapper {
                 .findFirst()
                 .orElse(null);
 
-        itemDto.setLastBooking(BookingMapper.toBookingDtoShort(lastBooking));
-        itemDto.setNextBooking(BookingMapper.toBookingDtoShort(nextBooking));
+        if (lastBooking != null) {
+            itemDto.setLastBooking(BookingMapper.toBookingDtoShort(lastBooking));
+        }
+        if (nextBooking != null) {
+            itemDto.setNextBooking(BookingMapper.toBookingDtoShort(nextBooking));
+        }
 
         return itemDto;
     }
