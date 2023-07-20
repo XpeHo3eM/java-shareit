@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "booking", schema = "public")
+@Table(name = "bookings", schema = "public")
 @Getter
 @Setter
 @Builder
