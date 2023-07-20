@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.dal;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
@@ -87,7 +85,6 @@ public class BookingServiceImpl implements BookingService {
         Booking bookingInRepository = getBookingOrThrowException(bookingId);
 
         if (userInRepository != bookingInRepository.getItem().getOwner() && userInRepository != bookingInRepository.getBooker()) {
-            log.warn("userId: {}, itemOwnerId: {}, bookerId: {}", userId, bookingInRepository.getItem().getOwner().getId(), bookingInRepository.getBooker());
             throw new AccessDeniedException(String.format("Пользователь %s не является владельцем вещи или автором бронирования", userInRepository));
         }
 
