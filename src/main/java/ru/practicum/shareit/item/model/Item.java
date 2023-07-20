@@ -42,6 +42,10 @@ public class Item {
     @ToString.Exclude
     private Set<Booking> bookings;
 
+    public User getOwner() {
+        return owner.toBuilder().build();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
