@@ -35,10 +35,4 @@ public class ErrorHandler {
     public Map<String, String> badRequest(final RuntimeException e) {
         return Map.of("error", e.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleThrowable(final Throwable e) {
-        return Map.of("error", e.getMessage());
-    }
 }
