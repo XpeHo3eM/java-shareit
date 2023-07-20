@@ -40,7 +40,7 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getOwnerItems(@RequestHeader(HEADER_USER_ID) long userId) {
-        return service.getAllItemsByOwnerId(userId);
+        return service.getAllItemsByUserId(userId);
     }
 
     @GetMapping("/search")

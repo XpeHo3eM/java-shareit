@@ -44,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByOwnerId(long userId) {
+    public List<ItemDto> getAllItemsByUserId(long userId) {
         getUserOrThrowException(userId);
 
         List<Item> items = itemRepository.findAllByOwnerId(userId);

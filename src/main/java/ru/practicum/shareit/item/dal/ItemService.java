@@ -10,7 +10,7 @@ import java.util.List;
 public interface ItemService {
     ItemDto addItem(long userId, CreatingItemDto creatingItemDto);
 
-    List<ItemDto> getAllItemsByOwnerId(long userId);
+    List<ItemDto> getAllItemsByUserId(long userId);
 
     List<ItemDto> search(long userId, String search);
 
