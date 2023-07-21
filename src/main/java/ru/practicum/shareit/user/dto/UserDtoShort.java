@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserDto {
+public class UserDtoShort {
     private Long id;
-    private String name;
-    private String email;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item.dto.item;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,9 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
-public class ItemDto {
-    private long id;
-
+public class CreatingItemDto {
     @NotNull
     @NotEmpty
     private String name;
