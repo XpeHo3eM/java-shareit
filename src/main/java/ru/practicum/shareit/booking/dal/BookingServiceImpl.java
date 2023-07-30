@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.dal;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -51,11 +54,11 @@ public class BookingServiceImpl implements BookingService {
             throw new NotAvailableBookingException(String.format("Вещь %s не доступна для бронирования", itemInRepository));
         }
 
-        Booking booking = BookingMapper.toBooking(creatingBookingDto);
+        Booking booking = BookingMapper.INSTANCE.toBooking(creatingBookingDto);
         booking.setItem(itemInRepository);
         booking.setBooker(userInRepository);
 
-        return BookingMapper.toDto(bookingRepository.save(booking));
+        return BookingMapper.INSTANCE.toDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -76,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
 
         bookingInRepository.setStatus(status);
 
-        return BookingMapper.toDto(bookingInRepository);
+        return BookingMapper.INSTANCE.toDto(bookingInRepository);
     }
 
     @Override
@@ -88,82 +91,88 @@ public class BookingServiceImpl implements BookingService {
             throw new AccessDeniedException(String.format("Пользователь %s не является владельцем вещи или автором бронирования", userInRepository));
         }
 
-        return BookingMapper.toDto(bookingInRepository);
+        return BookingMapper.INSTANCE.toDto(bookingInRepository);
     }
 
     @Override
-    public List<BookingDto> getUserBookings(long userId, String state) {
-        User user = getUserOrThrowException(userId);
-
+    public List<BookingDto> getUserBookings(long userId, String state, int from, int size) {
         Validator.validateStatusType(state);
+        Validator.validatePage(from, size);
+
+        User user = getUserOrThrowException(userId);
 
         StateType stateType = StateType.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> result;
+        Page<Booking> result;
+
+        PageRequest page = PageRequest.of(from / size, size);
 
         switch (stateType) {
             case PAST:
-                result = bookingRepository.findAllByBookerPast(user, now);
+                result = bookingRepository.findAllByBookerPast(user, now, page);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByBookerFuture(user, now);
+                result = bookingRepository.findAllByBookerFuture(user, now, page);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByBookerCurrent(user, now);
+                result = bookingRepository.findAllByBookerCurrent(user, now, page);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.WAITING);
+                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.WAITING, page);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.REJECTED);
+                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.REJECTED, page);
                 break;
             case ALL:
-                result = bookingRepository.findAllByBooker(user);
+                result = bookingRepository.findAllByBooker(user, page);
                 break;
             default:
-                result = Collections.emptyList();
+                result = Page.empty();
         }
 
         return result.stream()
-                .map(BookingMapper::toDto)
+                .map(BookingMapper.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> getOwnerBookings(long userId, String state) {
-        User user = getUserOrThrowException(userId);
-
+    public List<BookingDto> getOwnerBookings(long userId, String state, int from, int size) {
         Validator.validateStatusType(state);
+        Validator.validatePage(from, size);
+
+        User user = getUserOrThrowException(userId);
 
         StateType stateType = StateType.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> result;
+        Page<Booking> result;
+
+        PageRequest page = PageRequest.of(from / size, size);
 
         switch (stateType) {
             case PAST:
-                result = bookingRepository.findAllByOwnerPast(user, now);
+                result = bookingRepository.findAllByOwnerPast(user, now, page);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByOwnerFuture(user, now);
+                result = bookingRepository.findAllByOwnerFuture(user, now, page);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByOwnerCurrent(user, now);
+                result = bookingRepository.findAllByOwnerCurrent(user, now, page);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.WAITING);
+                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.WAITING, page);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.REJECTED);
+                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.REJECTED, page);
                 break;
             case ALL:
-                result = bookingRepository.findAllByOwner(user);
+                result = bookingRepository.findAllByOwner(user, page);
                 break;
             default:
-                result = Collections.emptyList();
+                result = Page.empty();
         }
 
         return result.stream()
-                .map(BookingMapper::toDto)
+                .map(BookingMapper.INSTANCE::toDto)
                 .collect(Collectors.toList());
     }
 

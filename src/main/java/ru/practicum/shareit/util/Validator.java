@@ -25,4 +25,10 @@ public class Validator {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
+
+    public void validatePage(long from, long size) {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException(String.format("Параметры страницы некорректны from: %s, size: %s", from, size));
+        }
+    }
 }
