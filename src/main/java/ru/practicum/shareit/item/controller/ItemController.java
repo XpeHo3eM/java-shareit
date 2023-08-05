@@ -9,10 +9,10 @@ import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.CreatingItemDto;
 import ru.practicum.shareit.util.Constant;
 
-import static ru.practicum.shareit.util.Constant.HEADER_USER_ID;
-
 import javax.validation.Valid;
 import java.util.List;
+
+import static ru.practicum.shareit.util.Constant.*;
 
 @RestController
 @RequestMapping("/items")
@@ -41,16 +41,16 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getOwnerItems(@RequestHeader(HEADER_USER_ID) long userId,
-                                       @RequestParam(defaultValue = Constant.DEFAULT_START_PAGE) Integer from,
-                                       @RequestParam(defaultValue = Constant.DEFAULT_SIZE_PAGE) Integer size) {
+                                       @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer from,
+                                       @RequestParam(defaultValue = DEFAULT_SIZE_PAGE) Integer size) {
         return service.getAllItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> findItem(@RequestHeader(HEADER_USER_ID) long userId,
                                   @RequestParam String text,
-                                  @RequestParam(defaultValue = Constant.DEFAULT_START_PAGE) Integer from,
-                                  @RequestParam(defaultValue = Constant.DEFAULT_SIZE_PAGE) Integer size) {
+                                  @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer from,
+                                  @RequestParam(defaultValue = DEFAULT_SIZE_PAGE) Integer size) {
         return service.search(userId, text, from, size);
     }
 
@@ -59,5 +59,11 @@ public class ItemController {
                                     @PathVariable long itemId,
                                     @RequestBody @Valid CreatingCommentDto commentDto) {
         return service.addComment(userId, itemId, commentDto);
+    }
+
+    @DeleteMapping("/{itemId}")
+    public void delete(@RequestHeader(HEADER_USER_ID) long userId,
+                       @PathVariable long itemId) {
+        service.deleteItem(userId, itemId);
     }
 }

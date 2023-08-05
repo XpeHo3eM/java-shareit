@@ -10,7 +10,7 @@ import ru.practicum.shareit.util.Constant;
 import javax.validation.Valid;
 import java.util.List;
 
-import static ru.practicum.shareit.util.Constant.HEADER_USER_ID;
+import static ru.practicum.shareit.util.Constant.*;
 
 
 @RestController
@@ -41,16 +41,16 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getBookings(@RequestHeader(HEADER_USER_ID) long userId,
                                         @RequestParam(defaultValue = "ALL") String state,
-                                        @RequestParam(defaultValue = Constant.DEFAULT_START_PAGE) Integer from,
-                                        @RequestParam(defaultValue = Constant.DEFAULT_SIZE_PAGE) Integer size) {
+                                        @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer from,
+                                        @RequestParam(defaultValue = DEFAULT_SIZE_PAGE) Integer size) {
         return service.getUserBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestHeader(HEADER_USER_ID) long userId,
                                              @RequestParam(defaultValue = "ALL") String state,
-                                             @RequestParam(defaultValue = Constant.DEFAULT_START_PAGE) Integer from,
-                                             @RequestParam(defaultValue = Constant.DEFAULT_SIZE_PAGE) Integer size) {
+                                             @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer from,
+                                             @RequestParam(defaultValue = DEFAULT_SIZE_PAGE) Integer size) {
         return service.getOwnerBookings(userId, state, from, size);
     }
 }

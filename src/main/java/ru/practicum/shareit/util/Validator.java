@@ -20,7 +20,7 @@ public class Validator {
 
     public void validateStatusType(String state) {
         try {
-            StateType.valueOf(state);
+            StateType.valueOf(state.toUpperCase());
         } catch (Exception e) {
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }

@@ -50,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getOwnerItemRequests(long userId) {
         User user = getUserOrThrowException(userId);
 
-        List<ItemRequest> itemRequests = itemRequestRepository.findAllByOwner(user);
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequester(user);
         Map<ItemRequest, List<Item>> items = getItemsForItemRequest(itemRequests);
 
         return itemRequests.stream()
@@ -66,11 +66,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllItemRequests(long userId, int from, int size) {
         Validator.validatePage(from, size);
-        getUserOrThrowException(userId);
+        User user = getUserOrThrowException(userId);
 
         PageRequest page = PageRequest.of(from / size, size, Sort.by("created").descending());
 
-        Page<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdNot(userId, page);
+        Page<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterNot(user, page);
         Map<ItemRequest, List<Item>> items = getItemsForItemRequest(itemRequests.getContent());
 
         return itemRequests.stream()

@@ -47,10 +47,10 @@ public class UserServiceImpl implements UserService {
         User userInRepository = getUserOrThrowException(userId);
         User user = UserMapper.INSTANCE.toUser(creatingUserDto);
 
-        if (user.getEmail() != null) {
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
             userInRepository.setEmail(user.getEmail());
         }
-        if (user.getName() != null) {
+        if (user.getName() != null && !user.getName().isBlank()) {
             userInRepository.setName(user.getName());
         }
 
@@ -60,6 +60,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(long id) {
+        getUserOrThrowException(id);
+
         repository.deleteById(id);
     }
 

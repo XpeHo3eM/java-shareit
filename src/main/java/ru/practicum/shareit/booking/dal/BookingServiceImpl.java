@@ -23,7 +23,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.util.Validator;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,19 +102,19 @@ public class BookingServiceImpl implements BookingService {
 
         StateType stateType = StateType.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
-        Page<Booking> result;
+        Page<Booking> result = Page.empty();
 
-        PageRequest page = PageRequest.of(from / size, size);
+        PageRequest page = PageRequest.of(from / size, size, Sort.by("dateStart").descending());
 
         switch (stateType) {
             case PAST:
-                result = bookingRepository.findAllByBookerPast(user, now, page);
+                result = bookingRepository.findAllByBookerAndPast(user, now, page);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByBookerFuture(user, now, page);
+                result = bookingRepository.findAllByBookerAndFuture(user, now, page);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByBookerCurrent(user, now, page);
+                result = bookingRepository.findAllByBookerAndCurrent(user, now, page);
                 break;
             case WAITING:
                 result = bookingRepository.findAllByBookerAndStatus(user, StatusType.WAITING, page);
@@ -126,8 +125,6 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 result = bookingRepository.findAllByBooker(user, page);
                 break;
-            default:
-                result = Page.empty();
         }
 
         return result.stream()
@@ -144,19 +141,19 @@ public class BookingServiceImpl implements BookingService {
 
         StateType stateType = StateType.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
-        Page<Booking> result;
+        Page<Booking> result = Page.empty();
 
-        PageRequest page = PageRequest.of(from / size, size);
+        PageRequest page = PageRequest.of(from / size, size, Sort.by("dateStart").descending());
 
         switch (stateType) {
             case PAST:
-                result = bookingRepository.findAllByOwnerPast(user, now, page);
+                result = bookingRepository.findAllByOwnerAndPast(user, now, page);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByOwnerFuture(user, now, page);
+                result = bookingRepository.findAllByOwnerAndFuture(user, now, page);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByOwnerCurrent(user, now, page);
+                result = bookingRepository.findAllByOwnerAndCurrent(user, now, page);
                 break;
             case WAITING:
                 result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.WAITING, page);
@@ -167,8 +164,6 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 result = bookingRepository.findAllByOwner(user, page);
                 break;
-            default:
-                result = Page.empty();
         }
 
         return result.stream()

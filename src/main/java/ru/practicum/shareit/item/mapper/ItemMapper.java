@@ -57,6 +57,10 @@ public interface ItemMapper {
 
     @Named("getLastBooking")
     default BookingDtoShort getLastBooking(Set<Booking> bookings) {
+        if (bookings == null) {
+            return null;
+        }
+
         return bookings.stream()
                 .sorted(Comparator.comparing(Booking::getDateStart).reversed())
                 .filter(b -> b.getDateStart().isBefore(LocalDateTime.now()) &&
@@ -68,6 +72,10 @@ public interface ItemMapper {
 
     @Named("getNextBooking")
     default BookingDtoShort getNextBooking(Set<Booking> bookings) {
+        if (bookings == null) {
+            return null;
+        }
+
         return bookings.stream()
                 .sorted(Comparator.comparing(Booking::getDateStart))
                 .filter(b -> b.getDateStart().isAfter(LocalDateTime.now()) &&

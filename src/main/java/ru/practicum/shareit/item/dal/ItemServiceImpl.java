@@ -71,9 +71,7 @@ public class ItemServiceImpl implements ItemService {
                     .collect(Collectors.toList());
         }
 
-        return items.stream()
-                .map(ItemMapper.INSTANCE::toDto)
-                .collect(Collectors.toList());
+        return Collections.emptyList();
     }
 
     @Override

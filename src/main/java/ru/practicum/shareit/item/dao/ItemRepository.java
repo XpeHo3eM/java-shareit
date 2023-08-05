@@ -12,23 +12,41 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    @Query("SELECT i" +
+    @Query(value = "SELECT i" +
             " FROM Item AS i" +
-            " JOIN FETCH i.owner" +
-            " WHERE i.owner.id = :id")
+            " JOIN FETCH i.owner AS o" +
+            " LEFT JOIN FETCH i.itemRequest" +
+            " LEFT JOIN FETCH i.comments" +
+            " LEFT JOIN FETCH i.bookings" +
+            " WHERE o.id = :id",
+            countQuery = "SELECT COUNT(i)" +
+                    " FROM Item i" +
+                    " WHERE i.owner.id = :id")
     Page<Item> findAllByOwnerId(@Param("id") Long ownerId, Pageable page);
 
     @Query("SELECT i" +
             " FROM Item AS i" +
             " JOIN FETCH i.owner" +
+            " LEFT JOIN FETCH i.itemRequest" +
+            " LEFT JOIN FETCH i.comments" +
+            " LEFT JOIN FETCH i.bookings" +
             " WHERE i.id = :id")
     Optional<Item> findByIdWithOwner(@Param("id") Long id);
 
-    @Query("SELECT i" +
+    @Query(value = "SELECT i" +
             " FROM Item AS i" +
+            " JOIN FETCH i.owner" +
+            " LEFT JOIN FETCH i.itemRequest" +
+            " LEFT JOIN FETCH i.comments" +
+            " LEFT JOIN FETCH i.bookings" +
             " WHERE (UPPER(i.name) LIKE UPPER(CONCAT('%', :text, '%'))" +
             "     OR UPPER(i.description) LIKE UPPER(CONCAT('%', :text, '%')))" +
-            "     AND i.available = TRUE")
+            "     AND i.available = TRUE",
+            countQuery = "SELECT COUNT(i)" +
+                    " FROM Item AS i" +
+                    " WHERE (UPPER(i.name) LIKE UPPER(CONCAT('%', :text, '%'))" +
+                    "     OR UPPER(i.description) LIKE UPPER(CONCAT('%', :text, '%')))" +
+                    "     AND i.available = TRUE")
     Page<Item> search(@Param("text") String text, Pageable page);
 
     List<Item> findItemByItemRequestIn(List<ItemRequest> requests);
