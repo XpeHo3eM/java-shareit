@@ -119,7 +119,7 @@ public class BookingIntegrationTest {
 
     @Test
     void shouldGetOwnerBookings() {
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "all", 1, 3);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "all", 0, 2);
 
         assertThat(bookings).asList()
                 .isNotEmpty()
