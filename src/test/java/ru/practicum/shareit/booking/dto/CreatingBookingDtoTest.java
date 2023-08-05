@@ -17,9 +17,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CreatingBookingDtoTest {
     @Autowired
     private JacksonTester<CreatingBookingDto> json;
-    private static final LocalDateTime startTime = LocalDateTime.now().minusDays(10);
-    private static final LocalDateTime endTime = LocalDateTime.now().minusDays(2);
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private final LocalDateTime startTime = LocalDateTime.now().minusDays(10);
+    private final LocalDateTime endTime = LocalDateTime.now().minusDays(2);
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Test
     void shouldSerialize() throws IOException {

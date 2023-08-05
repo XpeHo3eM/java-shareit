@@ -23,11 +23,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserIntegrationTest {
     private final UserService service;
     private final EntityManager entityManager;
-    private final static CreatingUserDto creatingUserDto = CreatingUserDto.builder()
+    private final CreatingUserDto creatingUserDto = CreatingUserDto.builder()
             .name("name")
             .email("email@ya.ru")
             .build();
-    private final static CreatingUserDto creatingUserDto2 = CreatingUserDto.builder()
+    private final CreatingUserDto creatingUserDto2 = CreatingUserDto.builder()
             .name("name2")
             .email("email2@ya.ru")
             .build();

@@ -33,21 +33,21 @@ class ItemRequestControllerTest {
     @MockBean
     private ItemRequestService service;
 
-    private static final CreatingItemRequestDto correctRequest = CreatingItemRequestDto.builder()
+    private final CreatingItemRequestDto correctRequest = CreatingItemRequestDto.builder()
             .description("description")
             .build();
-    private static final CreatingItemRequestDto requestWithBlankDescription = CreatingItemRequestDto.builder()
+    private final CreatingItemRequestDto requestWithBlankDescription = CreatingItemRequestDto.builder()
             .description(" ")
             .build();
-    private static final ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+    private final ItemRequestDto itemRequestDto = ItemRequestDto.builder()
             .id(1L)
             .description("description")
             .build();
-    private static final ItemRequestDto itemRequestDto2 = ItemRequestDto.builder()
+    private final ItemRequestDto itemRequestDto2 = ItemRequestDto.builder()
             .id(2L)
             .description("description2")
             .build();
-    private static final List<ItemRequestDto> listOfRequests = List.of(itemRequestDto, itemRequestDto2);
+    private final List<ItemRequestDto> listOfRequests = List.of(itemRequestDto, itemRequestDto2);
 
 
     @Test

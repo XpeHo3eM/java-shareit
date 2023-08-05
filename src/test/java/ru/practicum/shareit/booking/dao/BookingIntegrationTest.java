@@ -33,30 +33,30 @@ public class BookingIntegrationTest {
     private final ItemService itemService;
     private final EntityManager entityManager;
 
-    private static final CreatingUserDto userDto = CreatingUserDto.builder()
+    private final CreatingUserDto userDto = CreatingUserDto.builder()
             .name("user")
             .email("email@ya.ru")
             .build();
-    private static final CreatingUserDto userDto2 = CreatingUserDto.builder()
+    private final CreatingUserDto userDto2 = CreatingUserDto.builder()
             .name("user2")
             .email("email2@ya.ru")
             .build();
-    private static final CreatingItemDto itemDto = CreatingItemDto.builder()
+    private final CreatingItemDto itemDto = CreatingItemDto.builder()
             .name("item")
             .description("description")
             .available(true)
             .build();
-    private static final CreatingBookingDto bookingDto = CreatingBookingDto.builder()
+    private final CreatingBookingDto bookingDto = CreatingBookingDto.builder()
             .itemId(1L)
             .start(LocalDateTime.now().minusDays(2))
             .end(LocalDateTime.now().minusDays(1))
             .build();
-    private static final CreatingItemDto itemDto2 = CreatingItemDto.builder()
+    private final CreatingItemDto itemDto2 = CreatingItemDto.builder()
             .name("item2")
             .description("description2")
             .available(true)
             .build();
-    private static final CreatingBookingDto bookingDto2 = CreatingBookingDto.builder()
+    private final CreatingBookingDto bookingDto2 = CreatingBookingDto.builder()
             .itemId(2L)
             .start(LocalDateTime.now().minusDays(2))
             .end(LocalDateTime.now().minusDays(1))

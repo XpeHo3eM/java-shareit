@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CommentDtoJsonTest {
     @Autowired
     private JacksonTester<CommentDto> json;
-    private static final LocalDateTime now = LocalDateTime.now();
-    private static final CommentDto commentDto = CommentDto.builder()
+    private final LocalDateTime now = LocalDateTime.now();
+    private final CommentDto commentDto = CommentDto.builder()
             .id(1L)
             .text("comment")
             .created(now)

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemRequestDtoTest {
     @Autowired
     private JacksonTester<ItemRequestDto> json;
-    private static final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime now = LocalDateTime.now();
 
     @Test
     void shouldSerialize() throws IOException {

@@ -31,16 +31,16 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
     private static UserRepository repository;
     private static UserService service;
-    private static final CreatingUserDto creatingUserDto = CreatingUserDto.builder()
+    private final CreatingUserDto creatingUserDto = CreatingUserDto.builder()
             .name("user")
             .email("user@email.com")
             .build();
-    private static final User user1 = User.builder()
+    private final User user1 = User.builder()
             .id(1L)
             .name("user1")
             .email("user1@email.com")
             .build();
-    private static final User user2 = User.builder()
+    private final User user2 = User.builder()
             .id(2L)
             .name("user2")
             .email("user2@email.com")

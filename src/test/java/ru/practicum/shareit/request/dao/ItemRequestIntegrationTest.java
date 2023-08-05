@@ -31,24 +31,23 @@ public class ItemRequestIntegrationTest {
     private final UserRepository userStorage;
     private final EntityManager entityManager;
 
-    private static final User user = User.builder()
+    private final User user = User.builder()
             .id(1L)
             .name("userName")
             .email("mail@ya.ru")
             .build();
-    ;
-    private static final User user2 = User.builder()
+    private final User user2 = User.builder()
             .id(2L)
             .name("userName")
             .email("mail2@ya.ru")
             .build();
-    private static final CreatingItemRequestDto requestDto = CreatingItemRequestDto.builder()
+    private final CreatingItemRequestDto requestDto = CreatingItemRequestDto.builder()
             .description("description")
             .build();
-    private static final CreatingItemRequestDto requestDto2 = CreatingItemRequestDto.builder()
+    private final CreatingItemRequestDto requestDto2 = CreatingItemRequestDto.builder()
             .description("description2")
             .build();
-    private static final CreatingItemRequestDto requestDto3 = CreatingItemRequestDto.builder()
+    private final CreatingItemRequestDto requestDto3 = CreatingItemRequestDto.builder()
             .description("description3")
             .build();
 

@@ -38,8 +38,8 @@ public class BookingControllerTest {
 
     @MockBean
     BookingService service;
-    private final static LocalDateTime now = LocalDateTime.now();
-    private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private final LocalDateTime now = LocalDateTime.now();
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private final UserDtoShort user = UserDtoShort.builder()
             .id(1L)

@@ -50,30 +50,30 @@ class ItemServiceTest {
     private static ItemRequestRepository itemRequestRepository;
     private static ItemService itemService;
 
-    private static final LocalDateTime now = LocalDateTime.now();
-    private static final User user = User.builder()
+    private final LocalDateTime now = LocalDateTime.now();
+    private final User user = User.builder()
             .id(1L)
             .name("user1")
             .email("user1@email.com")
             .build();
-    private static final User user2 = User.builder()
+    private final User user2 = User.builder()
             .id(2L)
             .name("user2")
             .email("user2@email.com")
             .build();
-    private static final ItemRequest request = ItemRequest.builder()
+    private final ItemRequest request = ItemRequest.builder()
             .id(1L)
             .description("request")
             .requester(user)
             .created(now)
             .build();
-    private static final CreatingItemDto creatingItemDto = CreatingItemDto.builder()
+    private final CreatingItemDto creatingItemDto = CreatingItemDto.builder()
             .name("item")
             .description("description")
             .available(true)
             .requestId(1L)
             .build();
-    private static final Item item = Item.builder()
+    private final Item item = Item.builder()
             .id(1L)
             .name("item")
             .description("description")
@@ -83,7 +83,7 @@ class ItemServiceTest {
             .bookings(Collections.emptySet())
             .comments(Collections.emptySet())
             .build();
-    private static final Item item2 = Item.builder()
+    private final Item item2 = Item.builder()
             .id(2L)
             .name("item2")
             .description("description2")
@@ -92,7 +92,7 @@ class ItemServiceTest {
             .bookings(Collections.emptySet())
             .comments(Collections.emptySet())
             .build();
-    private static final Item updatedItem = Item.builder()
+    private final Item updatedItem = Item.builder()
             .id(1L)
             .name("updated")
             .description("updated")
@@ -102,22 +102,22 @@ class ItemServiceTest {
             .bookings(Collections.emptySet())
             .comments(Collections.emptySet())
             .build();
-    private static final List<Item> items = List.of(item, item2);
-    private static final CreatingItemDto updatedItemDto = CreatingItemDto.builder()
+    private final List<Item> items = List.of(item, item2);
+    private final CreatingItemDto updatedItemDto = CreatingItemDto.builder()
             .name("updated")
             .description("updated")
             .available(true)
             .build();
-    private static final CreatingCommentDto creatingCommentDto = CreatingCommentDto.builder()
+    private final CreatingCommentDto creatingCommentDto = CreatingCommentDto.builder()
             .text("comment")
             .build();
-    private static final Comment comment = Comment.builder()
+    private final Comment comment = Comment.builder()
             .id(1L)
             .text("comment")
             .author(user)
             .creationDate(LocalDateTime.now())
             .build();
-    private static final Booking booking = Booking.builder()
+    private final Booking booking = Booking.builder()
             .id(1L)
             .dateStart(now.minusSeconds(666))
             .dateEnd(now.minusSeconds(13))
@@ -126,10 +126,6 @@ class ItemServiceTest {
             .status(StatusType.APPROVED)
             .build();
 
-    @BeforeAll
-    static void setup() {
-        item.setBookings(Set.of(booking));
-    }
 
     @BeforeEach
     void initialize() {
@@ -527,6 +523,8 @@ class ItemServiceTest {
 
     @Test
     void shouldCreateComment() {
+        item.setBookings(Set.of(booking));
+
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user2));
         when(itemRepository.findByIdWithOwner(anyLong()))

@@ -16,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CreatingItemDtoJsonTest {
     @Autowired
     private JacksonTester<CreatingItemDto> json;
-
-    private final static CreatingItemDto creatingItemDto = CreatingItemDto.builder()
+    private final CreatingItemDto creatingItemDto = CreatingItemDto.builder()
             .name("itemName")
             .description("itemDescription")
             .available(true)

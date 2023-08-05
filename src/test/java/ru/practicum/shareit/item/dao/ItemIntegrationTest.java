@@ -27,12 +27,12 @@ public class ItemIntegrationTest {
     private final UserService userService;
     private final EntityManager entityManager;
 
-    private static final CreatingItemDto creatingItemDto = CreatingItemDto.builder()
+    private final CreatingItemDto creatingItemDto = CreatingItemDto.builder()
             .name("itemName")
             .description("itemDescription")
             .available(true)
             .build();
-    private static final CreatingUserDto creatingUserDto = CreatingUserDto.builder()
+    private final CreatingUserDto creatingUserDto = CreatingUserDto.builder()
             .name("userName")
             .email("user@ya.ru")
             .build();

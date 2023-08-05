@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CreatingCommentDtoJsonTest {
     @Autowired
     private JacksonTester<CreatingCommentDto> json;
-    private static final CreatingCommentDto creatingCommentDto = CreatingCommentDto.builder()
+    private final CreatingCommentDto creatingCommentDto = CreatingCommentDto.builder()
             .text("comment")
             .build();
 

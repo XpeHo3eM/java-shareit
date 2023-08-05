@@ -32,28 +32,28 @@ class ItemRequestServiceTest {
     public static ItemRepository itemRepository;
     private static ItemRequestService requestService;
     private static ItemRequestRepository requestRepository;
-    private static final LocalDateTime now = LocalDateTime.now();
-    private static final User user = User.builder()
+    private final LocalDateTime now = LocalDateTime.now();
+    private final User user = User.builder()
             .id(1L)
             .name("name")
             .email("email@ya.ru")
             .build();
-    private static final ItemRequest itemRequest = ItemRequest.builder()
+    private final ItemRequest itemRequest = ItemRequest.builder()
             .id(1L)
             .description("description")
             .requester(user)
             .created(now)
             .build();
-    private static final ItemRequest itemRequest2 = ItemRequest.builder()
+    private final ItemRequest itemRequest2 = ItemRequest.builder()
             .id(2L)
             .description("description2")
             .requester(user)
             .created(now)
             .build();
-    private static final CreatingItemRequestDto requestDto = CreatingItemRequestDto.builder()
+    private final CreatingItemRequestDto requestDto = CreatingItemRequestDto.builder()
             .description("description")
             .build();
-    private static final List<ItemRequest> requests = List.of(itemRequest, itemRequest2);
+    private final List<ItemRequest> requests = List.of(itemRequest, itemRequest2);
 
     @BeforeEach
     void initialize() {
