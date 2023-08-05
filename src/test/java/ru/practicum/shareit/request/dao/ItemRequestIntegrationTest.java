@@ -113,4 +113,19 @@ public class ItemRequestIntegrationTest {
                             .hasFieldOrPropertyWithValue("description", requestDto.getDescription());
                 });
     }
+
+    @Test
+    void shouldBeSameItemRequest() {
+        ItemRequest itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("description")
+                .build();
+
+        ItemRequest itemRequest2 = ItemRequest.builder()
+                .id(1L)
+                .description("another description")
+                .build();
+
+        assertThat(itemRequest).isEqualTo(itemRequest2);
+    }
 }

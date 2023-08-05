@@ -78,6 +78,11 @@ public class BookingIntegrationTest {
                 .setParameter("id", 1L)
                 .getSingleResult();
 
+        Booking booking1 = Booking.builder()
+                .id(1L)
+                .build();
+        assertThat(booking).isEqualTo(booking1);
+
         assertThat(booking)
                 .hasFieldOrPropertyWithValue("id", 1L)
                 .hasFieldOrPropertyWithValue("booker.id", 2L)

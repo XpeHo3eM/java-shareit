@@ -1,14 +1,17 @@
 package ru.practicum.shareit.item.dao;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dal.ItemService;
+import ru.practicum.shareit.item.dto.comment.CreatingCommentDto;
 import ru.practicum.shareit.item.dto.item.CreatingItemDto;
 import ru.practicum.shareit.item.dto.item.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dal.UserService;
 import ru.practicum.shareit.user.dto.CreatingUserDto;
@@ -36,12 +39,18 @@ public class ItemIntegrationTest {
             .name("userName")
             .email("user@ya.ru")
             .build();
+    private final CreatingCommentDto creatingCommentDto = CreatingCommentDto.builder()
+            .text("comment")
+            .build();
+
+    @BeforeEach
+    void setup() {
+        userService.addUser(creatingUserDto);
+        itemService.addItem(1L, creatingItemDto);
+    }
 
     @Test
     void shouldAddItem() {
-        userService.addUser(creatingUserDto);
-        itemService.addItem(1L, creatingItemDto);
-
         Item itemFromService = entityManager.createQuery(getQueryGetItemById(), Item.class)
                 .setParameter("id", 1L)
                 .getSingleResult();
@@ -54,9 +63,6 @@ public class ItemIntegrationTest {
 
     @Test
     void shouldUpdateItem() {
-        userService.addUser(creatingUserDto);
-        itemService.addItem(1L, creatingItemDto);
-
         CreatingItemDto updatedItemDto = CreatingItemDto.builder()
                 .name("updated")
                 .description("updated")
@@ -77,9 +83,6 @@ public class ItemIntegrationTest {
 
     @Test
     void shouldDeleteItem() {
-        userService.addUser(creatingUserDto);
-        itemService.addItem(1L, creatingItemDto);
-
         Item itemFromService = entityManager.createQuery(getQueryGetItemById(), Item.class)
                 .setParameter("id", 1L)
                 .getSingleResult();
@@ -100,9 +103,6 @@ public class ItemIntegrationTest {
 
     @Test
     void shouldGetItemById() {
-        userService.addUser(creatingUserDto);
-        itemService.addItem(1L, creatingItemDto);
-
         ItemDto itemFromService = itemService.getItemById(1L, 1L);
 
         assertThat(itemFromService)
@@ -120,9 +120,6 @@ public class ItemIntegrationTest {
                 .available(false)
                 .build();
 
-        userService.addUser(creatingUserDto);
-
-        itemService.addItem(1L, creatingItemDto);
         itemService.addItem(1L, creatingItemDto2);
 
         List<ItemDto> items = itemService.getAllItemsByUserId(1L, 0, 10);
@@ -156,9 +153,6 @@ public class ItemIntegrationTest {
                 .available(true)
                 .build();
 
-        userService.addUser(creatingUserDto);
-
-        itemService.addItem(1L, creatingItemDto);
         itemService.addItem(1L, creatingItemDto2);
         itemService.addItem(1L, creatingItemDto3);
 
@@ -175,14 +169,24 @@ public class ItemIntegrationTest {
                 });
     }
 
+    @Test
+    void shouldBeSameComment() {
+        Comment comment = Comment.builder()
+                .id(1L)
+                .text("my text")
+                .build();
+
+        Comment comment2 = Comment.builder()
+                .id(1L)
+                .text("another comment")
+                .build();
+
+        assertThat(comment).isEqualTo(comment2);
+    }
+
     private String getQueryGetItemById() {
         return "SELECT i " +
                 " FROM Item AS i" +
                 " WHERE i.id = :id";
-    }
-
-    private String getQueryGetAllItems() {
-        return "SELECT i " +
-                " FROM Item AS i";
     }
 }
