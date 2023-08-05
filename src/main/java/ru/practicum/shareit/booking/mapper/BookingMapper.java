@@ -34,12 +34,12 @@ public interface BookingMapper {
     Booking toBooking(CreatingBookingDto bookingDto);
 
     @Named("itemToItemDtoShort")
-    default ItemDtoShort itemToItemDtoShort (Item item) {
+    default ItemDtoShort itemToItemDtoShort(Item item) {
         return ItemMapper.INSTANCE.toDtoShort(item);
     }
 
     @Named("userToUserDtoShort")
-    default UserDtoShort userToUserDtoShort (User user) {
+    default UserDtoShort userToUserDtoShort(User user) {
         return UserMapper.INSTANCE.toDtoShort(user);
     }
 }

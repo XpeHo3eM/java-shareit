@@ -107,7 +107,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .collect(Collectors.groupingBy(Item::getItemRequest));
     }
 
-    private List<ItemRequestReplyDto> getItems(ItemRequest itemRequest,  Map<ItemRequest, List<Item>> items) {
+    private List<ItemRequestReplyDto> getItems(ItemRequest itemRequest, Map<ItemRequest, List<Item>> items) {
         return items.getOrDefault(itemRequest, Collections.emptyList()).stream()
                 .map(ItemRequestMapper.INSTANCE::toItemRequestReplyDto)
                 .collect(Collectors.toList());

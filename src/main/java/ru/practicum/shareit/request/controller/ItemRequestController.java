@@ -9,7 +9,6 @@ import ru.practicum.shareit.util.Constant;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 import static ru.practicum.shareit.util.Constant.HEADER_USER_ID;
 

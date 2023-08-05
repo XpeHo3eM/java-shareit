@@ -5,9 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dal.ItemService;
 import ru.practicum.shareit.item.dto.comment.CommentDto;
 import ru.practicum.shareit.item.dto.comment.CreatingCommentDto;
-import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.CreatingItemDto;
-import ru.practicum.shareit.util.Constant;
+import ru.practicum.shareit.item.dto.item.ItemDto;
 
 import javax.validation.Valid;
 import java.util.List;
