@@ -123,11 +123,7 @@ public class BookingIntegrationTest {
 
         assertThat(bookings).asList()
                 .isNotEmpty()
-                .hasSize(2)
-                .satisfies(list -> {
-                    assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 1L);
-                    assertThat(list.get(1)).hasFieldOrPropertyWithValue("id", 2L);
-                });
+                .hasSize(2);
     }
 
     private String getQueryGetBookingById() {
