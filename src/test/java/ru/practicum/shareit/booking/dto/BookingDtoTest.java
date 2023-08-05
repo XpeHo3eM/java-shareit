@@ -10,9 +10,9 @@ import ru.practicum.shareit.booking.model.StatusType;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.practicum.shareit.util.Constant.DATE_TIME_FORMATTER;
 
 @JsonTest
 class BookingDtoTest {
@@ -20,7 +20,6 @@ class BookingDtoTest {
     private JacksonTester<BookingDto> json;
     private final LocalDateTime startTime = LocalDateTime.now().minusDays(10);
     private final LocalDateTime endTime = LocalDateTime.now().minusDays(2);
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 
     @Test

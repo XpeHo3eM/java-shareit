@@ -16,7 +16,6 @@ import ru.practicum.shareit.user.dto.UserDtoShort;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -26,6 +25,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.Constant.DATE_TIME_FORMATTER;
 import static ru.practicum.shareit.util.Constant.HEADER_USER_ID;
 
 @WebMvcTest(controllers = BookingController.class)
@@ -39,8 +39,6 @@ public class BookingControllerTest {
     @MockBean
     BookingService service;
     private final LocalDateTime now = LocalDateTime.now();
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-
     private final UserDtoShort user = UserDtoShort.builder()
             .id(1L)
             .build();
