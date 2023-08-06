@@ -431,8 +431,8 @@ class ItemServiceTest {
 
     @Test
     void shouldGetAllByUserIdByOwner() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(user));
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(true);
         when(itemRepository.findAllByOwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
 
@@ -455,8 +455,8 @@ class ItemServiceTest {
     void shouldGetAllByUserIdByNotOwner() {
         when(itemRepository.findAllByOwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(user2));
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(true);
 
         List<ItemDto> items = itemService.getAllItemsByUserId(2L, 7, 3);
 
@@ -469,8 +469,8 @@ class ItemServiceTest {
 
     @Test
     void shouldSearch() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(user));
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(true);
         when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
 
@@ -483,7 +483,7 @@ class ItemServiceTest {
                     assertThat(list.get(0)).hasFieldOrPropertyWithValue("name", "item");
                     assertThat(list.get(0)).hasFieldOrPropertyWithValue("description", "description");
                 });
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).existsById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
         verify(itemRepository, times(1)).search(anyString(), any(Pageable.class));
@@ -491,13 +491,13 @@ class ItemServiceTest {
 
     @Test
     void shouldExceptionWithSearchNotFoundUser() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.empty());
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(false);
         when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
 
         assertThrows(EntityNotFoundException.class, () -> itemService.search(1L, "text", 7, 3));
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).existsById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
         verify(itemRepository, never()).search(anyString(), any(Pageable.class));
@@ -505,8 +505,8 @@ class ItemServiceTest {
 
     @Test
     void shouldGetEmptyListWithSearchWithBlankText() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(user));
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(true);
         when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
 
@@ -514,7 +514,7 @@ class ItemServiceTest {
 
         assertThat(items).asList()
                 .isEmpty();
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).existsById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
         verify(itemRepository, never()).search(anyString(), any(Pageable.class));

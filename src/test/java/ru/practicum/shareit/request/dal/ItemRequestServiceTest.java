@@ -94,8 +94,8 @@ class ItemRequestServiceTest {
 
     @Test
     void shouldGetRequestById() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(user));
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(true);
         when(requestRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(itemRequest));
 
@@ -106,31 +106,31 @@ class ItemRequestServiceTest {
                 .hasFieldOrPropertyWithValue("description", requestDto.getDescription())
                 .hasFieldOrProperty("created")
                 .hasFieldOrPropertyWithValue("items", new ArrayList<>());
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).existsById(anyLong());
         verify(requestRepository, times(1)).findById(anyLong());
     }
 
     @Test
     void shouldGetExceptionWithRequestByIdNotFoundUser() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.empty());
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(false);
         when(requestRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(itemRequest));
 
         assertThrows(EntityNotFoundException.class, () -> requestService.getItemRequest(user.getId(), itemRequest.getId()));
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).existsById(anyLong());
         verify(requestRepository, never()).findById(anyLong());
     }
 
     @Test
     void shouldGetExceptionWithRequestByIdNotFoundRequest() {
-        when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(user));
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(true);
         when(requestRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> requestService.getItemRequest(user.getId(), itemRequest.getId()));
-        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).existsById(anyLong());
         verify(requestRepository, times(1)).findById(anyLong());
     }
 

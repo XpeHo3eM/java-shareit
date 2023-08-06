@@ -60,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItemsByUserId(long userId, int from, int size) {
         Validator.validatePage(from, size);
-        getUserOrThrowException(userId);
+        isUserExists(userId);
 
         PageRequest page = PageRequest.of(from / size, size);
         Page<Item> items = itemRepository.findAllByOwnerId(userId, page);
@@ -77,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> search(long userId, String text, int from, int size) {
         Validator.validatePage(from, size);
-        getUserOrThrowException(userId);
+        isUserExists(userId);
 
         if (text.isBlank()) {
             return Collections.emptyList();
@@ -158,6 +158,12 @@ public class ItemServiceImpl implements ItemService {
     private User getUserOrThrowException(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователь с ID = %d не найден", id)));
+    }
+
+    private void isUserExists(long id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException(String.format("Пользователь с ID = %d не найден", id));
+        }
     }
 
     private Item getItemOrThrowException(long id) {
