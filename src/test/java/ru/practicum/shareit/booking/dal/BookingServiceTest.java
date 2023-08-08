@@ -3,13 +3,11 @@ package ru.practicum.shareit.booking.dal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.dao.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreatingBookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusType;
 import ru.practicum.shareit.exception.AccessDeniedException;
@@ -38,6 +36,7 @@ class BookingServiceTest {
     private static ItemRepository itemRepository;
     private static BookingRepository bookingRepository;
     private static BookingService bookingService;
+    private static BookingMapper bookingMapper;
 
     private final User user = User.builder()
             .id(1L)
@@ -73,6 +72,12 @@ class BookingServiceTest {
             .start(start)
             .end(end)
             .build();
+    private final Booking booking = Booking.builder()
+            .id(1L)
+            .dateStart(start)
+            .dateEnd(end)
+            .item(item)
+            .build();
     private final CreatingBookingDto creatingBookingDtoWithNotAvailableItem = CreatingBookingDto.builder()
             .itemId(itemNotAvailable.getId())
             .start(start)
@@ -102,12 +107,37 @@ class BookingServiceTest {
             .dateEnd(end)
             .item(item)
             .build();
-    private final List<Booking> bookings = List.of(bookingRejected, bookingApproved, bookingWaiting);
-    private final Page<Booking> bookingsPage = listBookingToPage();
-    private final ItemDtoShort itemDto = ItemDtoShort.builder()
+    private final ItemDtoShort itemDtoShort = ItemDtoShort.builder()
             .id(1L)
             .name("item")
             .build();
+    private final BookingDto bookingApprovedDto = BookingDto.builder()
+            .id(1L)
+            .status(StatusType.APPROVED)
+            .booker(booker)
+            .start(start)
+            .end(end)
+            .item(itemDtoShort)
+            .build();
+    private final BookingDto bookingRejectedDto = BookingDto.builder()
+            .id(2L)
+            .status(StatusType.REJECTED)
+            .booker(booker)
+            .start(start)
+            .end(end)
+            .item(itemDtoShort)
+            .build();
+    private final BookingDto bookingWaitingDto = BookingDto.builder()
+            .id(3L)
+            .status(StatusType.WAITING)
+            .booker(booker)
+            .start(start)
+            .end(end)
+            .item(itemDtoShort)
+            .build();
+    private final List<Booking> bookings = List.of(bookingRejected, bookingApproved, bookingWaiting);
+    private final Page<Booking> bookingsPage = listBookingToPage();
+    private final PageRequest page = PageRequest.of(0, 5, Sort.by("dateStart").descending());
 
 
     @BeforeEach
@@ -115,7 +145,8 @@ class BookingServiceTest {
         bookingRepository = Mockito.mock(BookingRepository.class);
         itemRepository = Mockito.mock(ItemRepository.class);
         userRepository = Mockito.mock(UserRepository.class);
-        bookingService = new BookingServiceImpl(bookingRepository, userRepository, itemRepository);
+        bookingMapper = Mockito.mock(BookingMapper.class);
+        bookingService = new BookingServiceImpl(bookingRepository, userRepository, itemRepository, bookingMapper);
     }
 
     @Test
@@ -126,6 +157,10 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(item));
         when(bookingRepository.save(any(Booking.class)))
                 .thenReturn(bookingWaiting);
+        when(bookingMapper.toBooking(any(CreatingBookingDto.class)))
+                .thenReturn(booking);
+        when(bookingMapper.toDto(any(Booking.class)))
+                .thenReturn(bookingWaitingDto);
 
         BookingDto getBookingDto = bookingService.addBooking(2L, creatingBookingDto);
 
@@ -135,7 +170,7 @@ class BookingServiceTest {
                 .hasFieldOrPropertyWithValue("end", end)
                 .hasFieldOrPropertyWithValue("status", StatusType.WAITING)
                 .hasFieldOrPropertyWithValue("booker", booker)
-                .hasFieldOrPropertyWithValue("item", itemDto);
+                .hasFieldOrPropertyWithValue("item", itemDtoShort);
         verify(userRepository, times(1)).findById(anyLong());
         verify(itemRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).save(any(Booking.class));
@@ -226,16 +261,18 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(user));
         when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(bookingWaiting));
+        when(bookingMapper.toDto(any(Booking.class)))
+                .thenReturn(bookingApprovedDto);
 
         BookingDto getBookingDto = bookingService.approveBooking(1L, 3L, true);
 
         assertThat(getBookingDto)
-                .hasFieldOrPropertyWithValue("id", 3L)
+                .hasFieldOrPropertyWithValue("id", 1L)
                 .hasFieldOrPropertyWithValue("start", start)
                 .hasFieldOrPropertyWithValue("end", end)
                 .hasFieldOrPropertyWithValue("status", StatusType.APPROVED)
                 .hasFieldOrPropertyWithValue("booker", booker)
-                .hasFieldOrPropertyWithValue("item", itemDto);
+                .hasFieldOrPropertyWithValue("item", itemDtoShort);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findById(anyLong());
     }
@@ -246,7 +283,8 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(user2));
         when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(bookingRejected));
-
+        when(bookingMapper.toDto(any(Booking.class)))
+                .thenReturn(bookingRejectedDto);
         BookingDto getBookingDto = bookingService.approveBooking(1L, 1L, false);
 
         assertThat(getBookingDto)
@@ -255,7 +293,7 @@ class BookingServiceTest {
                 .hasFieldOrPropertyWithValue("end", end)
                 .hasFieldOrPropertyWithValue("status", StatusType.REJECTED)
                 .hasFieldOrPropertyWithValue("booker", booker)
-                .hasFieldOrPropertyWithValue("item", itemDto);
+                .hasFieldOrPropertyWithValue("item", itemDtoShort);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findById(anyLong());
     }
@@ -324,6 +362,8 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(user));
         when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(bookingWaiting));
+        when(bookingMapper.toDto(any(Booking.class)))
+                .thenReturn(bookingWaitingDto);
 
         BookingDto getBookingDto = bookingService.getBooking(1L, 3L);
 
@@ -333,7 +373,7 @@ class BookingServiceTest {
                 .hasFieldOrPropertyWithValue("end", end)
                 .hasFieldOrPropertyWithValue("status", StatusType.WAITING)
                 .hasFieldOrPropertyWithValue("booker", booker)
-                .hasFieldOrPropertyWithValue("item", itemDto);
+                .hasFieldOrPropertyWithValue("item", itemDtoShort);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findById(anyLong());
     }
@@ -344,6 +384,8 @@ class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(user));
         when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(bookingApproved));
+        when(bookingMapper.toDto(any(Booking.class)))
+                .thenReturn(bookingApprovedDto);
 
         BookingDto getBookingDto = bookingService.getBooking(2L, 1L);
 
@@ -353,7 +395,7 @@ class BookingServiceTest {
                 .hasFieldOrPropertyWithValue("end", end)
                 .hasFieldOrPropertyWithValue("status", StatusType.APPROVED)
                 .hasFieldOrPropertyWithValue("booker", booker)
-                .hasFieldOrPropertyWithValue("item", itemDto);
+                .hasFieldOrPropertyWithValue("item", itemDtoShort);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findById(anyLong());
     }
@@ -407,11 +449,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBooker(any(User.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "aLl", 1, 5);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "aLl", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(Pageable.class));
     }
@@ -423,7 +464,7 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBooker(any(User.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        assertThrows(EntityNotFoundException.class, () -> bookingService.getUserBookings(1L, "aLl", 1, 5));
+        assertThrows(EntityNotFoundException.class, () -> bookingService.getUserBookings(1L, "aLl", page));
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, never()).findAllByBooker(any(User.class), any(Pageable.class));
     }
@@ -435,11 +476,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBookerAndCurrent(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "cuRRenT", 1, 5);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "cuRRenT", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByBookerAndCurrent(any(User.class), any(LocalDateTime.class), any(Pageable.class));
     }
@@ -451,11 +491,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBookerAndPast(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "pAST", 1, 5);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "pAST", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByBookerAndPast(any(User.class), any(LocalDateTime.class), any(Pageable.class));
     }
@@ -467,11 +506,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBookerAndFuture(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "FUTURE", 1, 5);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "FUTURE", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByBookerAndFuture(any(User.class), any(LocalDateTime.class), any(Pageable.class));
     }
@@ -483,11 +521,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBookerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "WAITING", 1, 5);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "WAITING", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByBookerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class));
     }
@@ -499,11 +536,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBookerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "rejected", 1, 5);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "rejected", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByBookerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class));
     }
@@ -515,11 +551,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByOwner(any(User.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "aLl", 1, 5);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "aLl", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByOwner(any(User.class), any(Pageable.class));
     }
@@ -531,7 +566,7 @@ class BookingServiceTest {
         when(bookingRepository.findAllByBooker(any(User.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        assertThrows(EntityNotFoundException.class, () -> bookingService.getOwnerBookings(1L, "aLl", 1, 5));
+        assertThrows(EntityNotFoundException.class, () -> bookingService.getOwnerBookings(1L, "aLl", page));
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, never()).findAllByBooker(any(User.class), any(Pageable.class));
     }
@@ -543,11 +578,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByOwnerAndCurrent(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "cuRRenT", 1, 5);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "cuRRenT", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByOwnerAndCurrent(any(User.class), any(LocalDateTime.class), any(Pageable.class));
     }
@@ -559,11 +593,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByOwnerAndPast(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "pAST", 1, 5);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "pAST", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByOwnerAndPast(any(User.class), any(LocalDateTime.class), any(Pageable.class));
     }
@@ -575,11 +608,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByOwnerAndFuture(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "FUTURE", 1, 5);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "FUTURE", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByOwnerAndFuture(any(User.class), any(LocalDateTime.class), any(Pageable.class));
     }
@@ -591,11 +623,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByOwnerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "WAITING", 1, 5);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "WAITING", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByOwnerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class));
     }
@@ -607,11 +638,10 @@ class BookingServiceTest {
         when(bookingRepository.findAllByOwnerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class)))
                 .thenReturn(bookingsPage);
 
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "rejected", 1, 5);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "rejected", page);
 
         assertThat(bookings).asList()
-                .hasSize(3)
-                .satisfies(list -> assertThat(list.get(0)).hasFieldOrPropertyWithValue("id", 2L));
+                .hasSize(3);
         verify(userRepository, times(1)).findById(anyLong());
         verify(bookingRepository, times(1)).findAllByOwnerAndStatus(any(User.class), any(StatusType.class), any(Pageable.class));
     }

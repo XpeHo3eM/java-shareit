@@ -3,15 +3,14 @@ package ru.practicum.shareit.request.dal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.request.dao.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.CreatingItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.request.mapper.ItemRequestMapperImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -54,13 +53,15 @@ class ItemRequestServiceTest {
             .description("description")
             .build();
     private final List<ItemRequest> requests = List.of(itemRequest, itemRequest2);
+    private final PageRequest page = PageRequest.of(0, 7, Sort.by("created").descending());
 
     @BeforeEach
     void initialize() {
         userRepository = Mockito.mock(UserRepository.class);
         itemRepository = Mockito.mock(ItemRepository.class);
         requestRepository = Mockito.mock(ItemRequestRepository.class);
-        requestService = new ItemRequestServiceImpl(userRepository, itemRepository, requestRepository);
+        ItemRequestMapper itemRequestMapper = new ItemRequestMapperImpl();
+        requestService = new ItemRequestServiceImpl(userRepository, itemRepository, requestRepository, itemRequestMapper);
     }
 
     @Test
@@ -172,7 +173,7 @@ class ItemRequestServiceTest {
         when(requestRepository.findAllByRequesterNot(any(User.class), any(Pageable.class)))
                 .thenReturn(listItemRequestToPage());
 
-        List<ItemRequestDto> requests = requestService.getAllItemRequests(user.getId(), 7, 3);
+        List<ItemRequestDto> requests = requestService.getAllItemRequests(user.getId(), page);
 
         assertThat(requests)
                 .hasSize(2)
@@ -191,7 +192,7 @@ class ItemRequestServiceTest {
         when(requestRepository.findAllByRequesterNot(any(User.class), any(Pageable.class)))
                 .thenReturn(listItemRequestToPage());
 
-        assertThrows(EntityNotFoundException.class, () -> requestService.getAllItemRequests(user.getId(), 7, 3));
+        assertThrows(EntityNotFoundException.class, () -> requestService.getAllItemRequests(user.getId(), page));
         verify(userRepository, times(1)).findById(anyLong());
         verify(requestRepository, never()).findAllByRequesterNot(any(User.class), any(Pageable.class));
     }

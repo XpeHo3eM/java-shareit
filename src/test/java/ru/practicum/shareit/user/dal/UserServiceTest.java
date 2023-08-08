@@ -13,6 +13,8 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.CreatingUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.mapper.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -49,7 +51,8 @@ public class UserServiceTest {
     @BeforeEach
     void initialize() {
         repository = Mockito.mock(UserRepository.class);
-        service = new UserServiceImpl(repository);
+        UserMapper userMapper = new UserMapperImpl();
+        service = new UserServiceImpl(repository, userMapper);
     }
 
     @Test

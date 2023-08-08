@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dal.BookingService;
@@ -281,12 +282,12 @@ public class BookingControllerTest {
         mvc.perform(get("/bookings")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, never()).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookings() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings")
@@ -296,12 +297,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookingsWithStateALL() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings?state=ALL")
@@ -311,12 +312,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookingsWithStateCURRENT() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings?state=CURRENT")
@@ -326,12 +327,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookingsWithStatePAST() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings?state=PAST")
@@ -341,12 +342,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookingsWithStateFUTURE() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings?state=FUTURE")
@@ -356,12 +357,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookingsWithStateWAITING() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings?state=WAITING")
@@ -371,12 +372,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetUserBookingsWithStateREJECTED() throws Exception {
-        when(service.getUserBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getUserBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings?state=REJECTED")
@@ -386,7 +387,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getUserBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getUserBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
@@ -394,12 +395,12 @@ public class BookingControllerTest {
         mvc.perform(get("/bookings/owner")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, never()).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookings() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner")
@@ -409,12 +410,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookingsWithStateALL() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner?state=ALL")
@@ -424,12 +425,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookingsWithStateCURRENT() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner?state=CURRENT")
@@ -439,12 +440,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookingsWithStatePAST() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner?state=PAST")
@@ -454,12 +455,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookingsWithStateFUTURE() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner?state=FUTURE")
@@ -469,12 +470,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookingsWithStateWAITING() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner?state=WAITING")
@@ -484,12 +485,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldGetBookingWithGetOwnerBookingsWithStateREJECTED() throws Exception {
-        when(service.getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.getOwnerBookings(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(bookings);
 
         mvc.perform(get("/bookings/owner?state=REJECTED")
@@ -499,6 +500,6 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", is(1)))
                 .andExpect(jsonPath("$.[1].id", is(2)));
-        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).getOwnerBookings(anyLong(), anyString(), any(Pageable.class));
     }
 }

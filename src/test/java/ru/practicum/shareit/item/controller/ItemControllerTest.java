@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.dal.ItemService;
@@ -87,7 +88,7 @@ public class ItemControllerTest {
         mvc.perform(get("/items")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).getAllItemsByUserId(anyLong(), anyInt(), anyInt());
+        verify(service, never()).getAllItemsByUserId(anyLong(), any(Pageable.class));
 
         mvc.perform(get("/items/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -97,7 +98,7 @@ public class ItemControllerTest {
         mvc.perform(get("/items/search?text=search")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).search(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, never()).search(anyLong(), anyString(), any(Pageable.class));
 
         mvc.perform(post("/items/1/comment")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -202,7 +203,7 @@ public class ItemControllerTest {
 
     @Test
     void shouldGetAllByUserId() throws Exception {
-        when(service.getAllItemsByUserId(anyLong(), anyInt(), anyInt()))
+        when(service.getAllItemsByUserId(anyLong(), any(Pageable.class)))
                 .thenReturn(List.of(itemDto, itemDto2));
 
         mvc.perform(get("/items")
@@ -218,7 +219,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[1].name", is("name2")))
                 .andExpect(jsonPath("$[1].description", is("description2")))
                 .andExpect(jsonPath("$[1].available", is(true)));
-        verify(service, times(1)).getAllItemsByUserId(anyLong(), anyInt(), anyInt());
+        verify(service, times(1)).getAllItemsByUserId(anyLong(), any(Pageable.class));
     }
 
     @Test
@@ -243,12 +244,12 @@ public class ItemControllerTest {
                         .header(HEADER_USER_ID, 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).search(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, never()).search(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test
     void shouldSearch() throws Exception {
-        when(service.search(anyLong(), anyString(), anyInt(), anyInt()))
+        when(service.search(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(List.of(itemDto, itemDto2));
 
         mvc.perform(get("/items/search?text=search")
@@ -264,7 +265,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[1].name", is("name2")))
                 .andExpect(jsonPath("$[1].description", is("description2")))
                 .andExpect(jsonPath("$[1].available", is(true)));
-        verify(service, times(1)).search(anyLong(), anyString(), anyInt(), anyInt());
+        verify(service, times(1)).search(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test

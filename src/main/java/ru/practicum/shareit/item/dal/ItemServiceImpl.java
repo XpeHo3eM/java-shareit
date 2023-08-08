@@ -1,8 +1,8 @@
 package ru.practicum.shareit.item.dal;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.AccessDeniedException;
@@ -22,7 +22,6 @@ import ru.practicum.shareit.request.dao.ItemRequestRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.util.Validator;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -30,20 +29,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final ItemRequestRepository itemRequestRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
     public ItemDto addItem(long userId, CreatingItemDto creatingItemDto) {
         User userInRepository = getUserOrThrowException(userId);
 
-        Item item = ItemMapper.INSTANCE.toItem(creatingItemDto);
+        Item item = itemMapper.toItem(creatingItemDto);
         item.setOwner(userInRepository);
 
         Long requestId = creatingItemDto.getRequestId();
@@ -54,20 +55,18 @@ public class ItemServiceImpl implements ItemService {
             item.setItemRequest(itemRequest);
         }
 
-        return ItemMapper.INSTANCE.toDto(itemRepository.save(item));
+        return itemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemDto> getAllItemsByUserId(long userId, int from, int size) {
-        Validator.validatePage(from, size);
+    public List<ItemDto> getAllItemsByUserId(long userId, Pageable pageable) {
         isUserExists(userId);
 
-        PageRequest page = PageRequest.of(from / size, size);
-        Page<Item> items = itemRepository.findAllByOwnerId(userId, page);
+        Page<Item> items = itemRepository.findAllByOwnerId(userId, pageable);
 
         if (!items.isEmpty() && items.getContent().get(0).getOwner().getId() == userId) {
             return items.stream()
-                    .map(ItemMapper.INSTANCE::toDtoWithBooking)
+                    .map(itemMapper::toDtoWithBooking)
                     .collect(Collectors.toList());
         }
 
@@ -75,18 +74,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(long userId, String text, int from, int size) {
-        Validator.validatePage(from, size);
+    public List<ItemDto> search(long userId, String text, Pageable pageable) {
         isUserExists(userId);
 
         if (text.isBlank()) {
             return Collections.emptyList();
         }
 
-        PageRequest page = PageRequest.of(from / size, size);
-
-        return itemRepository.search(text, page).stream()
-                .map(ItemMapper.INSTANCE::toDto)
+        return itemRepository.search(text, pageable).stream()
+                .map(itemMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -96,10 +92,10 @@ public class ItemServiceImpl implements ItemService {
         Item itemInRepository = getItemOrThrowException(itemId);
 
         if (itemInRepository.getOwner().getId() == userId) {
-            return ItemMapper.INSTANCE.toDtoWithBooking(itemInRepository);
+            return itemMapper.toDtoWithBooking(itemInRepository);
         }
 
-        return ItemMapper.INSTANCE.toDto(itemInRepository);
+        return itemMapper.toDto(itemInRepository);
     }
 
     @Override
@@ -108,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
         User userInRepository = getUserOrThrowException(userId);
         Item itemInRepository = getItemOrThrowException(itemId);
         throwExceptionIfUserIsNotItemOwner(userInRepository, itemInRepository);
-        Item item = ItemMapper.INSTANCE.toItem(creatingItemDto);
+        Item item = itemMapper.toItem(creatingItemDto);
 
         if (item.getName() != null && !item.getName().isBlank()) {
             itemInRepository.setName(item.getName());
@@ -120,7 +116,7 @@ public class ItemServiceImpl implements ItemService {
             itemInRepository.setAvailable(creatingItemDto.getAvailable());
         }
 
-        return ItemMapper.INSTANCE.toDto(itemInRepository);
+        return itemMapper.toDto(itemInRepository);
     }
 
     @Override
@@ -146,13 +142,13 @@ public class ItemServiceImpl implements ItemService {
             throw new NotAvailableBookingException(String.format("Пользователь с ID = %s не брал в аренду %s", userId, itemInRepository));
         }
 
-        Comment comment = CommentMapper.INSTANCE.toComment(creatingCommentDto);
+        Comment comment = commentMapper.toComment(creatingCommentDto);
 
         comment.setAuthor(userInRepository);
         comment.setItem(itemInRepository);
         comment.setCreationDate(LocalDateTime.now());
 
-        return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
+        return commentMapper.toDto(commentRepository.save(comment));
     }
 
     private User getUserOrThrowException(long id) {

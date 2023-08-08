@@ -18,9 +18,12 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
             " ORDER BY i.created DESC")
     List<ItemRequest> findAllByRequester(@Param("user") User owner);
 
-    @Query("SELECT i" +
+    @Query(value = "SELECT i" +
             " FROM ItemRequest AS i" +
-            " JOIN i.requester" +
-            " WHERE i.requester != :user")
+            " JOIN FETCH i.requester" +
+            " WHERE i.requester != :user",
+            countQuery = "SELECT COUNT(i)" +
+                    " FROM ItemRequest AS i" +
+                    " WHERE i.requester != :user")
     Page<ItemRequest> findAllByRequesterNot(@Param("user") User user, Pageable page);
 }

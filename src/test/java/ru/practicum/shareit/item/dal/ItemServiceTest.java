@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.model.Booking;
@@ -19,6 +20,8 @@ import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.comment.CreatingCommentDto;
 import ru.practicum.shareit.item.dto.item.CreatingItemDto;
 import ru.practicum.shareit.item.dto.item.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dao.ItemRequestRepository;
@@ -48,6 +51,9 @@ class ItemServiceTest {
     private static CommentRepository commentRepository;
     private static ItemRequestRepository itemRequestRepository;
     private static ItemService itemService;
+    private static ItemMapper itemMapper;
+    private static CommentMapper commentMapper;
+
 
     private final LocalDateTime now = LocalDateTime.now();
     private final User user = User.builder()
@@ -101,8 +107,24 @@ class ItemServiceTest {
             .bookings(Collections.emptySet())
             .comments(Collections.emptySet())
             .build();
+    private final ItemDto itemDto = ItemDto.builder()
+            .id(1L)
+            .name("item")
+            .description("description")
+            .available(true)
+            .requestId(request.getId())
+            .comments(Collections.emptyList())
+            .build();
+    private final ItemDto updatedItemDto = ItemDto.builder()
+            .id(1L)
+            .name("updated")
+            .description("updated")
+            .available(true)
+            .requestId(request.getId())
+            .comments(Collections.emptyList())
+            .build();
     private final List<Item> items = List.of(item, item2);
-    private final CreatingItemDto updatedItemDto = CreatingItemDto.builder()
+    private final CreatingItemDto updatedCreatingItemDto = CreatingItemDto.builder()
             .name("updated")
             .description("updated")
             .available(true)
@@ -124,6 +146,7 @@ class ItemServiceTest {
             .booker(user2)
             .status(StatusType.APPROVED)
             .build();
+    private final PageRequest page = PageRequest.of(0, 3);
 
 
     @BeforeEach
@@ -132,7 +155,9 @@ class ItemServiceTest {
         userRepository = Mockito.mock(UserRepository.class);
         commentRepository = Mockito.mock(CommentRepository.class);
         itemRequestRepository = Mockito.mock(ItemRequestRepository.class);
-        itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, itemRequestRepository);
+        itemMapper = Mockito.mock(ItemMapper.class);
+        commentMapper = Mockito.mock(CommentMapper.class );
+        itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, itemRequestRepository, itemMapper, commentMapper);
     }
 
     @Test
@@ -145,6 +170,10 @@ class ItemServiceTest {
                 .thenReturn(null);
         when(itemRepository.save(any(Item.class)))
                 .thenReturn(item);
+        when(itemMapper.toItem(any(CreatingItemDto.class)))
+                .thenReturn(item);
+        when(itemMapper.toDto(any(Item.class)))
+                .thenReturn(itemDto);
 
         ItemDto itemDto = itemService.addItem(user.getId(), creatingItemDto);
 
@@ -191,6 +220,8 @@ class ItemServiceTest {
                 .thenReturn(null);
         when(itemRepository.save(any(Item.class)))
                 .thenReturn(item);
+        when(itemMapper.toItem(any(CreatingItemDto.class)))
+                .thenReturn(item);
 
         assertThrows(EntityNotFoundException.class, () -> itemService.addItem(1L, creatingItemDto));
 
@@ -213,7 +244,7 @@ class ItemServiceTest {
         when(itemRepository.save(updatedItem))
                 .thenReturn(updatedItem);
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, 1L, updatedItemDto));
+        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, 1L, updatedCreatingItemDto));
         verify(userRepository, times(1)).findById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
@@ -234,7 +265,7 @@ class ItemServiceTest {
         when(itemRepository.save(updatedItem))
                 .thenReturn(updatedItem);
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, 1L, updatedItemDto));
+        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, 1L, updatedCreatingItemDto));
         verify(userRepository, times(1)).findById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
@@ -255,7 +286,7 @@ class ItemServiceTest {
         when(itemRepository.save(updatedItem))
                 .thenReturn(updatedItem);
 
-        assertThrows(AccessDeniedException.class, () -> itemService.updateItem(1L, 1L, updatedItemDto));
+        assertThrows(AccessDeniedException.class, () -> itemService.updateItem(1L, 1L, updatedCreatingItemDto));
         verify(userRepository, times(1)).findById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
@@ -267,19 +298,20 @@ class ItemServiceTest {
     void shouldUpdateItem() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
-        when(itemRequestRepository.findById(anyLong()))
-                .thenReturn(Optional.of(request));
-        when(commentRepository.findById(anyLong()))
-                .thenReturn(null);
         when(itemRepository.findByIdWithOwner(anyLong()))
                 .thenReturn(Optional.of(updatedItem));
+        when(itemMapper.toItem(any(CreatingItemDto.class)))
+                .thenReturn(updatedItem);
+        when(itemMapper.toDto(any(Item.class)))
+                .thenReturn(updatedItemDto);
 
-        ItemDto itemDto = itemService.updateItem(user.getId(), updatedItem.getId(), updatedItemDto);
+
+        ItemDto itemDto = itemService.updateItem(user.getId(), updatedItem.getId(), updatedCreatingItemDto);
 
         assertThat(itemDto)
                 .hasFieldOrPropertyWithValue("id", updatedItem.getId())
-                .hasFieldOrPropertyWithValue("name", updatedItemDto.getName())
-                .hasFieldOrPropertyWithValue("description", updatedItemDto.getDescription())
+                .hasFieldOrPropertyWithValue("name", updatedCreatingItemDto.getName())
+                .hasFieldOrPropertyWithValue("description", updatedCreatingItemDto.getDescription())
                 .hasFieldOrPropertyWithValue("requestId", 1L)
                 .hasFieldOrPropertyWithValue("lastBooking", null)
                 .hasFieldOrPropertyWithValue("nextBooking", null)
@@ -323,7 +355,7 @@ class ItemServiceTest {
                 .thenReturn(Optional.of(item));
         doNothing().when(itemRepository).deleteById(anyLong());
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, 1L, updatedItemDto));
+        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, 1L, updatedCreatingItemDto));
         verify(userRepository, times(1)).findById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
@@ -435,8 +467,10 @@ class ItemServiceTest {
                 .thenReturn(true);
         when(itemRepository.findAllByOwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
+        when(itemMapper.toDtoWithBooking(any(Item.class)))
+                .thenReturn(itemDto);
 
-        List<ItemDto> items = itemService.getAllItemsByUserId(1L, 3, 10);
+        List<ItemDto> items = itemService.getAllItemsByUserId(1L, page);
 
         assertThat(items).asList()
                 .isNotEmpty()
@@ -458,7 +492,7 @@ class ItemServiceTest {
         when(userRepository.existsById(anyLong()))
                 .thenReturn(true);
 
-        List<ItemDto> items = itemService.getAllItemsByUserId(2L, 7, 3);
+        List<ItemDto> items = itemService.getAllItemsByUserId(2L, page);
 
         assertThat(items).asList()
                 .isEmpty();
@@ -473,8 +507,10 @@ class ItemServiceTest {
                 .thenReturn(true);
         when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
+        when(itemMapper.toDto(any(Item.class)))
+                .thenReturn(itemDto);
 
-        List<ItemDto> items = itemService.search(1L, "text", 7, 3);
+        List<ItemDto> items = itemService.search(1L, "text", page);
 
         assertThat(items).asList()
                 .hasSize(2)
@@ -496,7 +532,7 @@ class ItemServiceTest {
         when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
 
-        assertThrows(EntityNotFoundException.class, () -> itemService.search(1L, "text", 7, 3));
+        assertThrows(EntityNotFoundException.class, () -> itemService.search(1L, "text", page));
         verify(userRepository, times(1)).existsById(anyLong());
         verify(itemRequestRepository, never()).findById(anyLong());
         verify(commentRepository, never()).findById(anyLong());
@@ -510,7 +546,7 @@ class ItemServiceTest {
         when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
 
-        List<ItemDto> items = itemService.search(1L, " ", 7, 3);
+        List<ItemDto> items = itemService.search(1L, " ", page);
 
         assertThat(items).asList()
                 .isEmpty();
@@ -529,6 +565,8 @@ class ItemServiceTest {
         when(itemRepository.findByIdWithOwner(anyLong()))
                 .thenReturn(Optional.of(item));
         when(commentRepository.save(any(Comment.class)))
+                .thenReturn(comment);
+        when(commentMapper.toComment(any(CreatingCommentDto.class)))
                 .thenReturn(comment);
 
         itemService.addComment(2L, 1L, creatingCommentDto);

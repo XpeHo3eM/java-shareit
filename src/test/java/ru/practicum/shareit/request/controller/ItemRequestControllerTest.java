@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.dal.ItemRequestService;
@@ -14,7 +15,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -124,30 +126,30 @@ class ItemRequestControllerTest {
 
     @Test
     void shouldExceptionWithGetAllRequestsWithRequestWithoutHeader() throws Exception {
-        when(service.getAllItemRequests(anyLong(), anyInt(), anyInt()))
+        when(service.getAllItemRequests(anyLong(), any(Pageable.class)))
                 .thenReturn(listOfRequests);
 
         mvc.perform(get("/requests/all")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).getAllItemRequests(anyLong(), anyInt(), anyInt());
+        verify(service, never()).getAllItemRequests(anyLong(), any(Pageable.class));
     }
 
     @Test
     void shouldExceptionWithGetAllRequestsWithFromMoreThenMaxInt() throws Exception {
-        when(service.getAllItemRequests(anyLong(), anyInt(), anyInt()))
+        when(service.getAllItemRequests(anyLong(), any(Pageable.class)))
                 .thenReturn(listOfRequests);
 
         mvc.perform(get("/requests/all?from=2147483648")
                         .header(HEADER_USER_ID, 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).getAllItemRequests(anyLong(), anyInt(), anyInt());
+        verify(service, never()).getAllItemRequests(anyLong(), any(Pageable.class));
     }
 
     @Test
     void shouldGetAllRequests() throws Exception {
-        when(service.getAllItemRequests(anyLong(), anyInt(), anyInt()))
+        when(service.getAllItemRequests(anyLong(), any(Pageable.class)))
                 .thenReturn(listOfRequests);
 
         mvc.perform(get("/requests/all")
@@ -157,7 +159,7 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.size()", is(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[1].id", is(2)));
-        verify(service, times(1)).getAllItemRequests(anyLong(), anyInt(), anyInt());
+        verify(service, times(1)).getAllItemRequests(anyLong(), any(Pageable.class));
     }
 
     @Test

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dal.BookingService;
@@ -61,6 +63,7 @@ public class BookingIntegrationTest {
             .start(LocalDateTime.now().minusDays(2))
             .end(LocalDateTime.now().minusDays(1))
             .build();
+    private final PageRequest page = PageRequest.of(0, 5, Sort.by("dateStart").descending());
 
     @BeforeEach
     void initialize() {
@@ -117,14 +120,14 @@ public class BookingIntegrationTest {
 
     @Test
     void shouldGetUserBookings() {
-        List<BookingDto> bookings = bookingService.getUserBookings(1L, "all", 1, 3);
+        List<BookingDto> bookings = bookingService.getUserBookings(1L, "all", page);
 
         assertThat(bookings).asList().isEmpty();
     }
 
     @Test
     void shouldGetOwnerBookings() {
-        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "all", 0, 2);
+        List<BookingDto> bookings = bookingService.getOwnerBookings(1L, "all", page);
 
         assertThat(bookings).asList()
                 .isNotEmpty()

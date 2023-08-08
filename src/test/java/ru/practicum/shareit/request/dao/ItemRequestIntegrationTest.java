@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.request.dal.ItemRequestService;
@@ -50,6 +52,7 @@ public class ItemRequestIntegrationTest {
     private final CreatingItemRequestDto requestDto3 = CreatingItemRequestDto.builder()
             .description("description3")
             .build();
+    private final PageRequest page = PageRequest.of(0, 5, Sort.by("created").descending());
 
     @BeforeEach
     void setup() {
@@ -84,7 +87,7 @@ public class ItemRequestIntegrationTest {
 
     @Test
     void shouldGetAllRequests() throws InterruptedException {
-        List<ItemRequestDto> requests = requestService.getAllItemRequests(2L, 0, 5);
+        List<ItemRequestDto> requests = requestService.getAllItemRequests(2L, page);
 
         assertThat(requests).asList()
                 .hasSize(2)

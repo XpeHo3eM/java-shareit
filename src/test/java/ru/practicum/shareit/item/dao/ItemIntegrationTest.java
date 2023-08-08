@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dal.ItemService;
@@ -42,6 +43,7 @@ public class ItemIntegrationTest {
     private final CreatingCommentDto creatingCommentDto = CreatingCommentDto.builder()
             .text("comment")
             .build();
+    private final PageRequest page = PageRequest.of(0, 3);
 
     @BeforeEach
     void setup() {
@@ -122,7 +124,7 @@ public class ItemIntegrationTest {
 
         itemService.addItem(1L, creatingItemDto2);
 
-        List<ItemDto> items = itemService.getAllItemsByUserId(1L, 0, 10);
+        List<ItemDto> items = itemService.getAllItemsByUserId(1L, page);
 
         assertThat(items).asList()
                 .hasSize(2)
@@ -156,7 +158,7 @@ public class ItemIntegrationTest {
         itemService.addItem(1L, creatingItemDto2);
         itemService.addItem(1L, creatingItemDto3);
 
-        List<ItemDto> items = itemService.search(1L, "Description2", 0, 10);
+        List<ItemDto> items = itemService.search(1L, "Description2", page);
 
         assertThat(items).asList()
                 .hasSize(1)
