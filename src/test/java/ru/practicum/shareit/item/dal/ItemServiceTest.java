@@ -156,7 +156,7 @@ class ItemServiceTest {
         commentRepository = Mockito.mock(CommentRepository.class);
         itemRequestRepository = Mockito.mock(ItemRequestRepository.class);
         itemMapper = Mockito.mock(ItemMapper.class);
-        commentMapper = Mockito.mock(CommentMapper.class );
+        commentMapper = Mockito.mock(CommentMapper.class);
         itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, itemRequestRepository, itemMapper, commentMapper);
     }
 
