@@ -1,21 +1,26 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dal.ItemService;
 import ru.practicum.shareit.item.dto.comment.CommentDto;
 import ru.practicum.shareit.item.dto.comment.CreatingCommentDto;
-import ru.practicum.shareit.item.dto.item.ItemDto;
 import ru.practicum.shareit.item.dto.item.CreatingItemDto;
-
-import static ru.practicum.shareit.util.Constant.HEADER_USER_ID;
+import ru.practicum.shareit.item.dto.item.ItemDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
+
+import static ru.practicum.shareit.util.Constant.*;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
     private final ItemService service;
 
@@ -39,14 +44,22 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getOwnerItems(@RequestHeader(HEADER_USER_ID) long userId) {
-        return service.getAllItemsByUserId(userId);
+    public List<ItemDto> getOwnerItems(@RequestHeader(HEADER_USER_ID) long userId,
+                                       @RequestParam(defaultValue = DEFAULT_START_PAGE) @PositiveOrZero Integer from,
+                                       @RequestParam(defaultValue = DEFAULT_SIZE_PAGE) @Positive Integer size) {
+        PageRequest page = PageRequest.of(from / size, size);
+
+        return service.getAllItemsByUserId(userId, page);
     }
 
     @GetMapping("/search")
     public List<ItemDto> findItem(@RequestHeader(HEADER_USER_ID) long userId,
-                                  @RequestParam String text) {
-        return service.search(userId, text);
+                                  @RequestParam String text,
+                                  @RequestParam(defaultValue = DEFAULT_START_PAGE) @PositiveOrZero Integer from,
+                                  @RequestParam(defaultValue = DEFAULT_SIZE_PAGE) @Positive Integer size) {
+        PageRequest page = PageRequest.of(from / size, size);
+
+        return service.search(userId, text, page);
     }
 
     @PostMapping("/{itemId}/comment")
@@ -54,5 +67,11 @@ public class ItemController {
                                     @PathVariable long itemId,
                                     @RequestBody @Valid CreatingCommentDto commentDto) {
         return service.addComment(userId, itemId, commentDto);
+    }
+
+    @DeleteMapping("/{itemId}")
+    public void delete(@RequestHeader(HEADER_USER_ID) long userId,
+                       @PathVariable long itemId) {
+        service.deleteItem(userId, itemId);
     }
 }

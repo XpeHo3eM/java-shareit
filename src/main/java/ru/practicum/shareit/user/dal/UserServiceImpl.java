@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.dal;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,35 +9,36 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.CreatingUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
     public UserDto addUser(CreatingUserDto creatingUserDto) {
-        User user = UserMapper.toUser(creatingUserDto);
+        User user = userMapper.toUser(creatingUserDto);
 
         return save(user);
     }
 
     @Override
     public UserDto getUserById(long id) {
-        return UserMapper.toDto(getUserOrThrowException(id));
+        return userMapper.toDto(getUserOrThrowException(id));
     }
 
     @Override
     public List<UserDto> getAllUsers() {
         return repository.findAll().stream()
-                .map(UserMapper::toDto)
+                .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -45,12 +46,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateUser(long userId, CreatingUserDto creatingUserDto) {
         User userInRepository = getUserOrThrowException(userId);
-        User user = UserMapper.toUser(creatingUserDto);
+        User user = userMapper.toUser(creatingUserDto);
 
-        if (user.getEmail() != null) {
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
             userInRepository.setEmail(user.getEmail());
         }
-        if (user.getName() != null) {
+        if (user.getName() != null && !user.getName().isBlank()) {
             userInRepository.setName(user.getName());
         }
 
@@ -60,6 +61,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(long id) {
+        getUserOrThrowException(id);
+
         repository.deleteById(id);
     }
 
@@ -70,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     private UserDto save(User user) {
         try {
-            return UserMapper.toDto(repository.saveAndFlush(user));
+            return userMapper.toDto(repository.saveAndFlush(user));
         } catch (DataIntegrityViolationException e) {
             throw new AlreadyExistsException(String.format("Пользователь с email: %s уже существует", user.getEmail()));
         }

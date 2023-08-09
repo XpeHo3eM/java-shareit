@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.dal;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -20,7 +22,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.util.Validator;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
@@ -51,11 +53,11 @@ public class BookingServiceImpl implements BookingService {
             throw new NotAvailableBookingException(String.format("Вещь %s не доступна для бронирования", itemInRepository));
         }
 
-        Booking booking = BookingMapper.toBooking(creatingBookingDto);
+        Booking booking = bookingMapper.toBooking(creatingBookingDto);
         booking.setItem(itemInRepository);
         booking.setBooker(userInRepository);
 
-        return BookingMapper.toDto(bookingRepository.save(booking));
+        return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -76,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
 
         bookingInRepository.setStatus(status);
 
-        return BookingMapper.toDto(bookingInRepository);
+        return bookingMapper.toDto(bookingInRepository);
     }
 
     @Override
@@ -88,82 +90,78 @@ public class BookingServiceImpl implements BookingService {
             throw new AccessDeniedException(String.format("Пользователь %s не является владельцем вещи или автором бронирования", userInRepository));
         }
 
-        return BookingMapper.toDto(bookingInRepository);
+        return bookingMapper.toDto(bookingInRepository);
     }
 
     @Override
-    public List<BookingDto> getUserBookings(long userId, String state) {
-        User user = getUserOrThrowException(userId);
-
+    public List<BookingDto> getUserBookings(long userId, String state, Pageable pageable) {
         Validator.validateStatusType(state);
+
+        User user = getUserOrThrowException(userId);
 
         StateType stateType = StateType.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> result;
+        Page<Booking> result = Page.empty();
 
         switch (stateType) {
             case PAST:
-                result = bookingRepository.findAllByBookerPast(user, now);
+                result = bookingRepository.findAllByBookerAndPast(user, now, pageable);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByBookerFuture(user, now);
+                result = bookingRepository.findAllByBookerAndFuture(user, now, pageable);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByBookerCurrent(user, now);
+                result = bookingRepository.findAllByBookerAndCurrent(user, now, pageable);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.WAITING);
+                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.WAITING, pageable);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.REJECTED);
+                result = bookingRepository.findAllByBookerAndStatus(user, StatusType.REJECTED, pageable);
                 break;
             case ALL:
-                result = bookingRepository.findAllByBooker(user);
+                result = bookingRepository.findAllByBooker(user, pageable);
                 break;
-            default:
-                result = Collections.emptyList();
         }
 
         return result.stream()
-                .map(BookingMapper::toDto)
+                .map(bookingMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> getOwnerBookings(long userId, String state) {
-        User user = getUserOrThrowException(userId);
-
+    public List<BookingDto> getOwnerBookings(long userId, String state, Pageable pageable) {
         Validator.validateStatusType(state);
+
+        User user = getUserOrThrowException(userId);
 
         StateType stateType = StateType.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> result;
+        Page<Booking> result = Page.empty();
 
         switch (stateType) {
             case PAST:
-                result = bookingRepository.findAllByOwnerPast(user, now);
+                result = bookingRepository.findAllByOwnerAndPast(user, now, pageable);
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByOwnerFuture(user, now);
+                result = bookingRepository.findAllByOwnerAndFuture(user, now, pageable);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByOwnerCurrent(user, now);
+                result = bookingRepository.findAllByOwnerAndCurrent(user, now, pageable);
                 break;
             case WAITING:
-                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.WAITING);
+                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.WAITING, pageable);
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.REJECTED);
+                result = bookingRepository.findAllByOwnerAndStatus(user, StatusType.REJECTED, pageable);
                 break;
             case ALL:
-                result = bookingRepository.findAllByOwner(user);
+                result = bookingRepository.findAllByOwner(user, pageable);
                 break;
-            default:
-                result = Collections.emptyList();
         }
 
         return result.stream()
-                .map(BookingMapper::toDto)
+                .map(bookingMapper::toDto)
                 .collect(Collectors.toList());
     }
 
