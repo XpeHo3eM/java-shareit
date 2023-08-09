@@ -26,6 +26,7 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,8 +64,9 @@ public class ItemServiceImpl implements ItemService {
         isUserExists(userId);
 
         Page<Item> items = itemRepository.findAllByOwnerId(userId, pageable);
+        boolean itemExist = items.getContent().stream().findAny().isPresent();
 
-        if (!items.isEmpty() && items.getContent().get(0).getOwner().getId() == userId) {
+        if (!items.isEmpty() && itemExist && items.getContent().stream().findAny().get().getOwner().getId() == userId ) {
             return items.stream()
                     .map(itemMapper::toDtoWithBooking)
                     .collect(Collectors.toList());
