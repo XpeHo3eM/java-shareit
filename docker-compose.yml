@@ -14,7 +14,7 @@ services:
     container_name: shareit_server
     ports:
       - "9090:9090"
-    depends_on: [ db ]
+    depends_on: [ db_postgres ]
     environment:
       - DB_NAME=shareit
       - POSTGRES_USER=root
@@ -22,7 +22,7 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
 
-  postgres:
+  db_postgres:
     image: postgres:13.7-alpine
     container_name: shareit_db_postgres
     ports:
