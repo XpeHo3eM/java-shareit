@@ -19,7 +19,7 @@ services:
       - DB_NAME=shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - DB_HOST=db
+      - DB_HOST=db_postgres
       - DB_PORT=5432
 
   db_postgres:
