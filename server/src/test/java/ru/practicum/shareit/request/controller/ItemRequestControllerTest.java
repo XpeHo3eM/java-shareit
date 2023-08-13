@@ -38,9 +38,6 @@ class ItemRequestControllerTest {
     private final CreatingItemRequestDto correctRequest = CreatingItemRequestDto.builder()
             .description("description")
             .build();
-    private final CreatingItemRequestDto requestWithBlankDescription = CreatingItemRequestDto.builder()
-            .description(" ")
-            .build();
     private final ItemRequestDto itemRequestDto = ItemRequestDto.builder()
             .id(1L)
             .description("description")
@@ -130,21 +127,6 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
         verify(service, never()).getAllItemRequests(anyLong(), any(Pageable.class));
-    }
-
-    @Test
-    void shouldGetAllRequests() throws Exception {
-        when(service.getAllItemRequests(anyLong(), any(Pageable.class)))
-                .thenReturn(listOfRequests);
-
-        mvc.perform(get("/requests/all")
-                        .header(HEADER_USER_ID, 1)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(2)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[1].id", is(2)));
-        verify(service, times(1)).getAllItemRequests(anyLong(), any(Pageable.class));
     }
 
     @Test

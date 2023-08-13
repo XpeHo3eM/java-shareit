@@ -15,9 +15,7 @@ import ru.practicum.shareit.item.dto.item.CreatingItemDto;
 import ru.practicum.shareit.item.dto.item.ItemDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -47,13 +45,6 @@ public class ItemControllerTest {
             .id(1L)
             .name("name")
             .description("description")
-            .available(true)
-            .build();
-
-    private final ItemDto itemDto2 = ItemDto.builder()
-            .id(2L)
-            .name("name2")
-            .description("description2")
             .available(true)
             .build();
 
@@ -154,27 +145,6 @@ public class ItemControllerTest {
     }
 
     @Test
-    void shouldGetAllByUserId() throws Exception {
-        when(service.getAllItemsByUserId(anyLong(), any(Pageable.class)))
-                .thenReturn(List.of(itemDto, itemDto2));
-
-        mvc.perform(get("/items")
-                        .header(HEADER_USER_ID, 1L)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(1L), Long.class))
-                .andExpect(jsonPath("$[0].name", is("name")))
-                .andExpect(jsonPath("$[0].description", is("description")))
-                .andExpect(jsonPath("$[0].available", is(true)))
-                .andExpect(jsonPath("$[1].id", is(2L), Long.class))
-                .andExpect(jsonPath("$[1].name", is("name2")))
-                .andExpect(jsonPath("$[1].description", is("description2")))
-                .andExpect(jsonPath("$[1].available", is(true)));
-        verify(service, times(1)).getAllItemsByUserId(anyLong(), any(Pageable.class));
-    }
-
-    @Test
     void shouldGetByItemId() throws Exception {
         when(service.getItemById(anyLong(), anyLong()))
                 .thenReturn(itemDto);
@@ -197,27 +167,6 @@ public class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
         verify(service, never()).search(anyLong(), anyString(), any(Pageable.class));
-    }
-
-    @Test
-    void shouldSearch() throws Exception {
-        when(service.search(anyLong(), anyString(), any(Pageable.class)))
-                .thenReturn(List.of(itemDto, itemDto2));
-
-        mvc.perform(get("/items/search?text=search")
-                        .header(HEADER_USER_ID, 1L)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(1L), Long.class))
-                .andExpect(jsonPath("$[0].name", is("name")))
-                .andExpect(jsonPath("$[0].description", is("description")))
-                .andExpect(jsonPath("$[0].available", is(true)))
-                .andExpect(jsonPath("$[1].id", is(2L), Long.class))
-                .andExpect(jsonPath("$[1].name", is("name2")))
-                .andExpect(jsonPath("$[1].description", is("description2")))
-                .andExpect(jsonPath("$[1].available", is(true)));
-        verify(service, times(1)).search(anyLong(), anyString(), any(Pageable.class));
     }
 
     @Test

@@ -22,9 +22,9 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
 
-  db:
+  postgres:
     image: postgres:13.7-alpine
-    container_name: shareit_db
+    container_name: shareit_db_postgres
     ports:
       - "6541:5432"
     environment:
